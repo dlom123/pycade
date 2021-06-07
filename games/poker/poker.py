@@ -11,6 +11,7 @@ import random
 # copy ?
 
 #player and table tokens
+game_tokens = 0
 player_tokens = 1000
 table_tokens = 1000
 # win conditions in order of importance
@@ -107,15 +108,15 @@ def pokerdealer():
     print("Come back when you have the tokens")
 
 
-def main(args):
+def play(username, tokens):
     """Main program code."""
-    if len(args) > 0:
-        print('usage: python pokerhands.py')
-        sys.exit(1)
-
-    # num = sys.argv[1]
+    global game_tokens
+    game_tokens = tokens
     pokerdealer()
+    # TODO: reset globals to their initial values so that the next time
+    #       this game is launched it is reinitialized
 
+    return game_tokens
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    play()

@@ -1,9 +1,18 @@
 import random
 
 # deck dictionary= "card": [number_of_cards, point_value]
-deck = {'A': [4, 1, 11], "2": [4, 2], "3": [4, 3], "4": [4, 4], "5": [4, 5],
+DECK = {'A': [4, 1, 11], "2": [4, 2], "3": [4, 3], "4": [4, 4], "5": [4, 5],
         "6": [4, 6], "7": [4, 7], "8": [4, 8], "9": [4, 9], "10": [4, 10],
         "J": [4, 10], "Q": [4, 10], "K": [4, 10]}
+
+still_playing = None
+game_tokens = None
+game_username = None
+
+
+def init():
+    global still_playing
+    still_playing = True
 
 
 def deal_one(one_hand, deal_deck):
@@ -15,7 +24,7 @@ def deal_one(one_hand, deal_deck):
 def sum_hand(hand):
     """adds the value of all the cards"""
     # TODO: aces not accounted for"""
-    return sum([deck[card][-1] for card in hand])
+    return sum([DECK[card][-1] for card in hand])
 
 
 def deal_hands(player_hand, table_hand, table_deck):
@@ -47,18 +56,22 @@ def winning(player_hand, table_hand):
         print("lost")
 
 
-def black_jack():
+def play(username, tokens):
+    init()
+
+    global game_tokens, game_username, still_playing
+    game_tokens = tokens
+    game_username = username
+    print(f"You have {game_tokens} tokens")
     """ runtime loop managing the game state """
-    table_deck = deck
+    table_deck = DECK
     # shuffle the deck before dealing
     random.shuffle(list(table_deck.keys()))
     table_hand = []
     player_hand = []
     balance = 500
 
-
     # game loop
-    still_playing = True
     while still_playing and balance > 0:
         # if the hand is empty deal 2 cards
         if not player_hand:
@@ -113,9 +126,14 @@ def black_jack():
             if player_said.lower() == "no" or player_said.lower() == "n":
                 still_playing = False
             player_hand.clear()
+    # TODO: reset globals to their initial values so that the next time
+    #       this game is launched it is reinitialized
+
+    return game_tokens
 
 
-black_jack()
+if __name__ == '__main__':
+    play()
 
 
 # win conditions
