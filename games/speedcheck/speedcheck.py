@@ -1,95 +1,92 @@
 """
-place a message in the terminal
-take x tokens
-return x*score.
-
-ready set (delay) random time (1 - 3 seconds)
-  marking the time
-post to terminal "go"
-wait for input ()
-  marking the time
-calculate how long it took
-    second time - first time = how long it took (par 2 seconds)
-
+Speed Check:
+    The subject is tested for speed and accuracy for their typing.
+    if they are accurate enough they get rewarded (x2)
+    if they are fast enough the tokens are returned to them (-1)
+    if they are not fast enought the tokens are kept by the house.
  """
-import time
 from datetime import datetime
 import random
+import helpers
 exit_flag = None
 game_tokens = None
 game_username = None
 
 
 def init():
-    global exit_flag, game_tokens, game_username, time
-    exit_flag = False
+    global still_playing, game_tokens, game_username
+    still_playing = True
 
 
 def input_continue_playing():
     """
     Make sure the player has enough tokens to continue playing, then ask them
     if they would like to continue playing, or walk away.
+    Consider moving to helpers shared with other games.
     """
-    global exit_flag
+    global still_playing, game_tokens
     if game_tokens <= 0:
-        exit_flag = True
-        print("Thank you for playing, youre broke now!")
-        return
+        still_playing = False
+        print("Thank you for playing, you're broke now!")
 
     continue_playing = input("Would you like to keep playing? (y/n)")
 
     if continue_playing == "n":
-        exit_flag = True
-        return
+        still_playing = False
 
 
 def play(username, tokens):
     init()
-    global game_tokens
+    global game_tokens, game_username, still_playing
     game_tokens = tokens
     game_username = username
-
+    words = []
+    with open('games/speedcheck/longwords.txt', "r") as f:
+        words = f.readlines()
     bet = 0
-    while not exit_flag:
-        bet = int(input("How many tokens will you bet?(int)"))
-        # if bet <= game_tokens and bet >= 0:
-        #     pass
-        # helpers.update_tokens(game_username, game_tokens-bet)
+    while still_playing and game_tokens > 0:
+        valid_bet = False
+        while not valid_bet:
+            bet = int(
+                input(
+                    f"You have: {game_tokens} tokens, how many will you bet(int):"))
+            if bet <= game_tokens and bet >= 0:
+                game_tokens -= bet
+                helpers.update_tokens(game_username, game_tokens)
+                print(f"You've bet {bet} tokens.")
+                valid_bet = True
+            else:
+                print(f"something went wrong")
         print('countdown')  # needs animation
-        time.sleep(random.randint(1, 3))
-        time1 = datetime.now()  # check the time
-        input("go\n====\n")  # take input
-        time2 = datetime.now()  # check the time
-        print(f"time1:{time1} \ntime2: {time2}")
+        time1 = datetime.now()
+        secret_word = random.choice(words)
+        time_to_beat = int(len(secret_word)/2)
+        inputed_word = input(
+            f"you have {time_to_beat} seconds to type: {secret_word}\n")
+        time2 = datetime.now()
         reaction_speed = time2-time1
         print(str(reaction_speed)[-9:])
-        if float(str(reaction_speed)[-9:]) < 2:
-            print(f"wow {game_username} are so fast, you earned {bet} tokens")
+        # """if you are faster then x seconds you win"""
+        if float(str(reaction_speed)[-9:]) < time_to_beat:
+            print(f"Wow! {game_username} you are so fast")
+            if inputed_word.lower().strip() == secret_word.lower().strip():
+                # tiering the score 3x or 1.5x
+                print(
+                    f"and accurate too, you've earned {bet*2} tokens")
+                game_tokens += bet*2
+                helpers.update_tokens(game_username, game_tokens)
+                input_continue_playing()
+                continue
+            print(
+                f"but not very accurate \nThe word: {secret_word}\nYour word: {inputed_word}")  # noqa
+            print(f"returned the balance{game_tokens}")
+            # house always wins
+            game_tokens += bet-1
+            helpers.update_tokens(game_username, game_tokens)
             input_continue_playing()
-            # reward tokens
-            # update_token_amount = game_tokens + (bet*(2-reaction_speed))
-            # helpers.update_tokens(game_username, updated_tokens_amount)
-            # helper funtion updates 'database'
         else:
-            print("you're too slow")
+            print("You're too slow.")
+            print(f"The word: {secret_word}\nYour word: {inputed_word}")
+            print(f"balance: {game_tokens}")
             input_continue_playing()
-            # play again?
-            # don't reward tokens.
-
-
-play("marcus", 100)
-
-# good
-
-# 1 pachinko, racing, (pick a bucket and see if it wins )
-# 2 hang-man  (get a word and guess it)
-# 3 speed tester (randomly delay a post an time input) (how fast you type)
-
-
-# probably not
-# tic-tac-toe
-# alphabet game.
-# rps
-# go
-# chess
-# uno
+    return game_tokens

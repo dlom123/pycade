@@ -13,10 +13,14 @@ game_username = None
 def init():
     global still_playing
     still_playing = True
+    DECK = {'A': [4, 1, 11], "2": [4, 2], "3": [4, 3], "4": [4, 4], "5": [4, 5],
+            "6": [4, 6], "7": [4, 7], "8": [4, 8], "9": [4, 9], "10": [4, 10],
+            "J": [4, 10], "Q": [4, 10], "K": [4, 10]}
 
 
 def deal_one(one_hand, deal_deck):
     """Deals a single card"""
+    # we can deal 5 of the same card
     one_hand.append(random.choice(list(deal_deck.keys())))
     deal_deck[one_hand[-1]][0] -= 1
 
@@ -24,7 +28,17 @@ def deal_one(one_hand, deal_deck):
 def sum_hand(hand):
     """adds the value of all the cards"""
     # TODO: aces not accounted for"""
-    return sum([DECK[card][-1] for card in hand])
+    score = 0
+    for card in hand:
+        score += DECK[card][-1]
+    if score >= 21 and "A" in hand:
+        score = 0
+        for card in hand:
+            if card == "A":
+                score += 1
+            else:
+                score += DECK[card][-1]
+    return score
 
 
 def deal_hands(player_hand, table_hand, table_deck):
@@ -45,15 +59,18 @@ def draw_table_hand(table_hand, table_deck):
         print(f"      Dealer: {sum_hand(table_hand)} {table_hand}")
 
 
-def winning(player_hand, table_hand):
-    """poorly named"""
-    print(f"Player's hand:{player_hand} score of {sum_hand(player_hand)}")
-    print(f"Dealer's hand:{table_hand} score of {sum_hand(table_hand)}")
-    # if d<p<=21:
-    if sum_hand(table_hand) < sum_hand(player_hand) <= 21:
-        print("winning")
-    else:
-        print("lost")
+# def winning(player_hand, table_hand):
+#     """poorly named"""
+#     print(f"Player's hand:{player_hand} score of {sum_hand(player_hand)}")
+#     print(f"Dealer's hand:{table_hand} score of {sum_hand(table_hand)}")
+#     # if d<p<=21:
+#     if sum_hand(table_hand) < sum_hand(player_hand) <= 21:
+#         print("winning")
+#         return True
+#     if len(player_hand) >= 5:
+#         print("winning")
+#         return True
+#     print("lost")
 
 
 def play(username, tokens):
@@ -69,18 +86,15 @@ def play(username, tokens):
     random.shuffle(list(table_deck.keys()))
     table_hand = []
     player_hand = []
-    balance = 500
 
     # game loop
-    while still_playing and balance > 0:
+    while still_playing and game_tokens > 0:
         # if the hand is empty deal 2 cards
         if not player_hand:
-            print(f"Balance: {balance}")
+            print(f"Balance: {game_tokens}")
             bet = int(input("Enter bet: "))
             print(f"Current bet: {bet}")
             deal_hands(player_hand, table_hand, table_deck)
-            # deal_new_hand(player_hand, table_deck)
-        # deal/bet loop/check hand
         if sum_hand(player_hand) <= 21:
             print(f"   Dealer: {['?', table_hand[1]]}")
             print(f"Your hand: {player_hand}")
@@ -94,7 +108,6 @@ def play(username, tokens):
                 pass
             else:
                 continue
-                # win_checking?  and reseting the game
         else:
             print('you broke')
 
@@ -103,11 +116,11 @@ def play(username, tokens):
         # this part of the loop checks for wins or loses
         # then it waits for a responce to redeal or exit
         if sum_hand(table_hand) < sum_hand(player_hand) <= 21:
-            balance += bet
+            game_tokens += bet * 2
             print(
-                f"Player's hand: {sum(player_hand)} {player_hand} score of {sum_hand(player_hand)}")
+                f"Player's hand: {player_hand} score of {sum_hand(player_hand)}")
             print(
-                f"Dealer's hand: {sum(table_hand)} {table_hand} score of {sum_hand(table_hand)}")
+                f"Dealer's hand: {table_hand} score of {sum_hand(table_hand)}")
             player_said = input(
                 "You Win! \nplay again? (say \"n\" to exit) ")
             player_hand.clear()
@@ -115,17 +128,44 @@ def play(username, tokens):
             if player_said.lower() == "no" or player_said.lower() == "n":
                 still_playing = False
             continue
-        else:
-            balance -= bet
+        elif sum_hand(table_hand) > 21 and sum_hand(player_hand) <= 21:
+            game_tokens += bet * 2
             print(
-                f"Player's hand:{player_hand} score of {sum_hand(player_hand)}")
+                f"Player's hand: {player_hand} score of {sum_hand(player_hand)}")
             print(
-                f"Dealer's hand:{table_hand} score of {sum_hand(table_hand)}")
+                f"Dealer's hand: {table_hand} score of {sum_hand(table_hand)}")
             player_said = input(
-                "You Lose :( \nplay again? (say \"n\" to exit) ")
+                "You Win! \nplay again? (say \"n\" to exit) ")
+            player_hand.clear()
+            table_hand.clear()
             if player_said.lower() == "no" or player_said.lower() == "n":
                 still_playing = False
+            continue
+        elif len(player_hand) >= 5 and sum_hand(player_hand) <= 21:
+            game_tokens += bet * 2
+            print(
+                f"Player's hand: {player_hand} score of {sum_hand(player_hand)}")
+            print(
+                f"Dealer's hand: {table_hand} score of {sum_hand(table_hand)}")
+            player_said = input(
+                "You Win! \nplay again? (say \"n\" to exit) ")
             player_hand.clear()
+            table_hand.clear()
+            if player_said.lower() == "no" or player_said.lower() == "n":
+                still_playing = False
+            continue
+
+        game_tokens -= bet
+        print(
+            f"Player's hand:{player_hand} score of {sum_hand(player_hand)}")
+        print(
+            f"Dealer's hand:{table_hand} score of {sum_hand(table_hand)}")
+        player_said = input(
+            "You Lose :( \nplay again? (say \"n\" to exit) ")
+        if player_said.lower() == "no" or player_said.lower() == "n":
+            still_playing = False
+        player_hand.clear()
+        table_hand.clear()
     # TODO: reset globals to their initial values so that the next time
     #       this game is launched it is reinitialized
 
