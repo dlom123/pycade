@@ -10,6 +10,7 @@ from games.freeplay import freeplay
 from games.poker import poker
 from games.roulette import roulette
 from games.slots import slots
+from games.speedcheck import speedcheck
 
 START_TOKENS = 100
 available_games = sorted(os.listdir('games'))
@@ -85,7 +86,6 @@ def login(error: str = ""):
             if f_username == input_username:
                 tokens = int(num_tokens)
                 break
-
     show_game_menu()
 
 
@@ -131,6 +131,8 @@ def play_game(game_number):
         tokens = roulette.play(username, tokens)
     elif game == "slots":
         tokens = slots.play(username, tokens)
+    elif game == "speedcheck":
+        tokens = speedcheck.play(username, tokens)
 
     show_game_menu()
 
