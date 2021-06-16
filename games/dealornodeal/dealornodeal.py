@@ -63,6 +63,9 @@ def get_bankers_offer():
 
 
 def make_bankers_offer():
+    """
+    gets the bankers offer and then offers it to the player.
+    """
     global game_tokens, still_playing
     offer = get_bankers_offer()
     print(f"The banker would like to offer you {offer} to walk away")
@@ -81,6 +84,9 @@ def make_bankers_offer():
 
 
 def play(username, tokens):
+    """
+    This is the main loop of the game
+    """
     init()
 
     global game_tokens, game_username, user_suitcase, still_playing
@@ -108,19 +114,15 @@ def play(username, tokens):
         cur_round += 1
         if len(remaining_cases) <= 1:
             still_playing = False
-        # 1. pick a case to reveal
-        # 2. reveal that case
-        # 3. banker makes an offer
-        #     user chooses to "deal" or "no deal"
-        #     "no deal" - repeat from step 1
-        #     "deal" - player earns the amount of tokens offered by the banker
-        #         reveal their chosen suitcase
 
     print(game_tokens)
     return game_tokens
 
 
 def show_remaining_cases(round, cases_left_in_round):
+    """
+    Displays the current game state to the user
+    """
     os.system('clear')
     print(f"Round: {round}, Cases Left To Pick: {cases_left_in_round}\n")
     row_sizes = (6, 7, 7, 6)

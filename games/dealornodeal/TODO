@@ -1,0 +1,3 @@
+Make sure that users can only pick cases that are still available, and that the choice is a number between 1 - 26
+
+When the user gets down to the last case we need to allow them to swap the case, then reveal the case they didnt choose
