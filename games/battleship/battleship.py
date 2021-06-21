@@ -54,18 +54,22 @@ def enemy_placement():
     return ship_locale
 
 
-def battleship(username, tokens):
+def play(username, tokens):
     init()
-    global ship_name_dict, game_board, column, rows, game_tokens
-    global game_username, still_playing, ship_dict
+
+    global game_tokens, game_username, still_playing
+    global ship_name_dict, game_board, column, rows, ship_dict
     game_tokens = tokens
     game_username = username
     sunken_ships = []
     guess_list = []
+
+    print(f"Battleship\tTokens: {game_tokens}\n")
+
     try:
         position = enemy_placement()
     except Exception:
-        battleship(username, tokens)
+        play(username, tokens)
     print(f"You have {game_tokens} tokens")
     print("Welcome to Battleship! Run out of guesses and good-bye fleet.")
     decision = input("Would you like to play?[y/n] ")
@@ -115,9 +119,10 @@ def battleship(username, tokens):
         print(f"You won {winnings} tokens")
         again = input("Would you like to play again?][y/n] ")
         if again.lower() == 'y':
-            return battleship(username, game_tokens)
+            return play(username, game_tokens)
         print("See you again!")
         return game_tokens
 
 
-battleship("user", 20)
+if __name__ == '__main__':
+    play()
