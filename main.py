@@ -8,6 +8,7 @@ import time
 
 from games.battleship import battleship
 from games.blackjack import blackjack
+from games.crane_game import crane
 from games.deal_or_no_deal import dealornodeal
 from games.freeplay import freeplay
 from games.poker import poker
@@ -143,6 +144,8 @@ def play_game(game_number):
         tokens = battleship.play(username, tokens)
     elif game == "blackjack":
         tokens = blackjack.play(username, tokens)
+    elif game == "crane_game":
+        tokens = crane.play(username, tokens)
     elif game == "deal_or_no_deal":
         tokens = dealornodeal.play(username, tokens)
     elif game == "freeplay":
