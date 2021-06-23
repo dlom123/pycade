@@ -15,7 +15,8 @@ column = list(range(1, 11))
 game_board = {row: [f'{row}{number}' for number in column] for row in rows}
 tracker_board = {row: [f'{row}{number}' for number in column] for row in rows}
 row = [True, False]
-checks = ' '.join([' '.join([f"{row}{number}"for number in column]) for row in rows]).split()
+checks = ' '.join([' '.join([f"{row}{number}"for number in column])
+                   for row in rows]).split()
 ship_dict = {"C": 5, "Bb": 4, "Gb": 3, "S": 3}
 ship_name_dict = {"C": ["Carrier", 2],
                   "Bb": ["Battleship", 3],
@@ -36,7 +37,7 @@ def enemy_placement(ship_locale={}):
             elif orientation and int(start[1:]) > ship_dict[ship]+1:
                 start = start[0] + str(10-ship_dict[ship]+1)
             elif not orientation and rows.find(rand_row) + 1 > ship_dict[ship]:
-                start = f"""{rows[len(tracker_board[rand_row])-ship_dict[ship]]}{start[1:]}"""
+                start = f"{rows[len(tracker_board[rand_row])-ship_dict[ship]]}{start[1:]}" # noqa
             if start == "X":
                 return enemy_placement(ship_locale=ship_locale)
             ship_pos.append(start)
@@ -104,13 +105,13 @@ def play(username, tokens):
                 elif hit:
                     print("HIT!!")
                 for ship_type in position.keys():
-                    if position[ship_type] == [] and ship_type not in sunken_ships:
+                    if position[ship_type] == [] and ship_type not in sunken_ships: # noqa
                         print(f"You sunk my {ship_name_dict[ship_type][0]}!!!")
                         sunken_ships.append(ship_type)
                 print('\n')
             guess = input("Here are your selections. What square do you guess?").upper() # noqa
             while guess not in checks:
-                guess = input("Sorry, that is not on the board.Try again. What square do you guess?")
+                guess = input("Sorry, that is not on the board.Try again. What square do you guess?") # noqa
             guess_list.append(guess)
             for enemy_ship_positions in position.values():
                 for index, single_ship_position in enumerate(enemy_ship_positions): # noqa
