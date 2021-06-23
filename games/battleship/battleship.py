@@ -1,8 +1,8 @@
 import random
 
 still_playing = None
-game_tokens = 20
-game_username = "Cap'n"
+game_tokens = None
+game_username = None
 
 
 def init():
@@ -15,6 +15,7 @@ column = list(range(1, 11))
 game_board = {row: [f'{row}{number}' for number in column] for row in rows}
 tracker_board = {row: [f'{row}{number}' for number in column] for row in rows}
 row = [True, False]
+checks = ' '.join([' '.join([f"{row}{number}"for number in column]) for row in rows]).split()
 ship_dict = {"C": 5, "Bb": 4, "Gb": 3, "S": 3}
 ship_name_dict = {"C": ["Carrier", 2],
                   "Bb": ["Battleship", 3],
@@ -36,6 +37,8 @@ def enemy_placement(ship_locale={}):
                 start = start[0] + str(10-ship_dict[ship]+1)
             elif not orientation and rows.find(rand_row) + 1 > ship_dict[ship]:
                 start = f"""{rows[len(tracker_board[rand_row])-ship_dict[ship]]}{start[1:]}"""
+            if start == "X":
+                return enemy_placement(ship_locale=ship_locale)
             ship_pos.append(start)
             for _ in range(ship_dict[ship]-1):
                 if orientation:
@@ -63,59 +66,65 @@ def enemy_placement(ship_locale={}):
 def play(username, tokens):
     init()
 
-    global game_tokens, game_username, still_playing
+    global game_tokens, game_username, still_playing, checks
     global ship_name_dict, game_board, column, rows, ship_dict
     game_tokens = tokens
     game_username = username
     sunken_ships = []
     guess_list = []
-    # try:
     position = enemy_placement()
-    # except Exception:
-    #     play(username, tokens)
     print(f"Battleship\tTokens: {game_tokens}\n")
     print("Welcome to Battleship! Run out of guesses and good-bye fleet.")
     decision = input("Would you like to play?[y/n] ")
     if decision.lower() == "y":
         tries = input("Please submit the amount of tokens (5 guesses per token) ") # noqa
+        while tries:
+            try:
+                int(tries)
+                break
+            except Exception:
+                tries = input("Please submit an integer")
         n = 5*int(tries)
         game_tokens -= int(tries)
         print(f"You have {n} guesses")
-        guesses = 0
         choices = [[f"{row}{number}" for number in column]for row in rows]
-        while guesses < n or len(sunken_ships) == len(ship_dict.keys()):
+        while n or len(sunken_ships) == len(ship_dict.keys()):
+            hit = False
             for letter in choices:
                 for number in letter:
                     print(f'{number}', end=" ")
                 print("\n")
-            print(f'You have {n-guesses} guesses left')
+            print(f'You have {n} guesses left')
             if guess_list:
                 print("Here are your guesses:")
                 [print(previous_guess, end=" ") for previous_guess in guess_list] # noqa
                 print("\n")
+                if not hit:
+                    print("MISS")
+                elif hit:
+                    print("HIT!!")
+                for ship_type in position.keys():
+                    if position[ship_type] == [] and ship_type not in sunken_ships:
+                        print(f"You sunk my {ship_name_dict[ship_type][0]}!!!")
+                        sunken_ships.append(ship_type)
+                print('\n')
             guess = input("Here are your selections. What square do you guess?").upper() # noqa
+            while guess not in checks:
+                guess = input("Sorry, that is not on the board.Try again. What square do you guess?")
             guess_list.append(guess)
-            hit = False
             for enemy_ship_positions in position.values():
                 for index, single_ship_position in enumerate(enemy_ship_positions): # noqa
                     if guess == single_ship_position:
-                        print("HIT!")
                         hit = True
                         enemy_ship_positions.pop(index)
                         break
                 if hit:
                     break
-            if not hit:
-                print("MISS")
-                guesses += 1
+            n -= 1
             choices = [[f"{cells}" if guess != cells else (" O" if cells == guess and hit else " X") for cells in rows]for rows in choices] # noqa
-            for ship_type in position.keys():
-                if position[ship_type] == [] and ship_type not in sunken_ships:
-                    print(f"You sunk my {ship_name_dict[ship_type][0]}!!!")
-                    sunken_ships.append(ship_type)
         if len(sunken_ships) == len(ship_dict.keys()):
             print("You win!")
-        else:
+        elif n == 0:
             print(f"You lose. Nice Try Admiral {username}")
         winnings = sum([ship_name_dict[ship][1] for ship in sunken_ships])
         game_tokens += winnings
