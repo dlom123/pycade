@@ -14,6 +14,7 @@ from games.poker import poker
 from games.roulette import roulette
 from games.slots import slots
 from games.speedcheck import speedcheck
+from helpers import status_bar
 
 START_TOKENS = 100
 available_games = sorted(os.listdir('games'))
@@ -47,7 +48,7 @@ def show_game_menu():
         os.system('clear')
         if error:
             print(f"{error}\n")
-        print_tokens()
+        print(f"{status_bar(tokens=tokens)}\n")
         print_banner("Games")
         for i, game in enumerate(available_games):
             game_title = game.replace("_", " ").title()
@@ -131,10 +132,6 @@ def print_banner(message):
     print("-" * len(message))
     print(message)
     print("-" * len(message))
-
-
-def print_tokens():
-    print(f"Tokens: {tokens}\n")
 
 
 def play_game(game_number):

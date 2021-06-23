@@ -1,5 +1,6 @@
 import os
 import random
+from helpers import status_bar
 
 game_tokens = None
 game_username = None
@@ -46,23 +47,29 @@ def init():
     }
 
 
+def refresh_screen():
+    os.system('clear')
+    status = status_bar(game_name="Deal Or No Deal", tokens=game_tokens)
+    print(f"{status}\n")
+
+
 def play(username, tokens):
     init()
 
     global game_tokens, game_username, user_suitcase
     game_tokens = tokens
     game_username = username
-    if tokens < 1000:
-        print("You need at least 1000 tokens to play!")
-        return game_tokens
-
+    # if tokens < 1000:
+    #     print("You need at least 1000 tokens to play!")
+    #     return game_tokens
+    refresh_screen()
     show_remaining_cases()
     choice = int(input("Choose a suitcase [1-26]: "))
     popped = remaining_cases.pop(choice)
     user_suitcase[choice] = popped
 
+    refresh_screen()
     show_remaining_cases()
-
     # 1. pick a case to reveal
     choice = int(input("Open a suitcase: "))
     # 2. reveal that case
@@ -76,7 +83,6 @@ def play(username, tokens):
 
 
 def show_remaining_cases():
-    os.system('clear')
     row_sizes = (6, 7, 7, 6)
     for row, width in enumerate(row_sizes):
         offset = sum(row_sizes[0:row+1])  # 6, 13, 20, 26

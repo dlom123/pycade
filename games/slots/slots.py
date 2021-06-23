@@ -1,7 +1,7 @@
 import random
 import time
 import os
-import helpers
+from helpers import status_bar, update_tokens
 
 
 # The list of all possibilities that each slot can land on
@@ -12,15 +12,23 @@ slots = None
 game_tokens = None
 game_username = None
 roll_bet = None
+last_roll = None
 exit_flag = None
 
 
 def init():
-    global slots, game_tokens, roll_bet, exit_flag
+    global slots, game_tokens, roll_bet, last_roll, exit_flag
     slots = [None, None, None]
     game_tokens = 0
     roll_bet = 0
+    last_roll = None
     exit_flag = False
+
+
+def refresh_screen():
+    os.system('clear')
+    status = status_bar(game_name="Slots", tokens=game_tokens)
+    print(f"{status}\n")
 
 
 def roll():
@@ -41,16 +49,18 @@ def display_roll(rolls):
     The rolls variable is how many times we roll the temporary slots before
     displaying the actual rolls of each slot
     """
+    global last_roll
     temp_slots = [None, None, None]
     for _ in range(rolls):
-        os.system('clear')
+        refresh_screen()
         for index in range(len(temp_slots)):
             temp_slots[index] = random.choice(possibilities)
-        print(f"{temp_slots[0]} | {temp_slots[1]} | {temp_slots[2]}")
-        time.sleep(.5)
+        last_roll = f"{temp_slots[0]} | {temp_slots[1]} | {temp_slots[2]}"
+        print(last_roll)
+        time.sleep(0.5)
 
-    os.system('clear')
-    print(f"{slots[0]} | {slots[1]} | {slots[2]}")
+    refresh_screen()
+    print(f"{slots[0]} | {slots[1]} | {slots[2]}\n")
 
 
 def input_roll_bet():
@@ -59,11 +69,10 @@ def input_roll_bet():
     subtract that amount from the total amount of tokens put in
     """
     global roll_bet, game_tokens
-    print(f"Tokens: {game_tokens}\n")
     str_bet = input("How many tokens would you like to bet on this roll: ")
 
     if not str_bet.isnumeric():
-        print("Please enter a numeric string")
+        print("Please enter a number.")
         input_roll_bet()
 
     roll_bet = int(str_bet)
@@ -73,7 +82,7 @@ def input_roll_bet():
         input_roll_bet()
 
     game_tokens -= roll_bet
-    helpers.update_tokens(game_username, game_tokens)
+    update_tokens(game_username, game_tokens)
 
 
 def input_continue_playing():
@@ -87,7 +96,7 @@ def input_continue_playing():
         print("Thank you for playing, youre broke now!")
         return
 
-    continue_playing = input("Would you like to keep playing? (y/n)")
+    continue_playing = input("Would you like to keep playing? (y/n) ")
 
     if continue_playing == "n":
         exit_flag = True
@@ -101,15 +110,19 @@ def check_rewards():
     """
     global game_tokens
     if slots[0] == slots[1] == slots[2]:
-        print(f"Winner, Winner, Chicken Dinner!! You won {roll_bet * 4}")
+        message = f"Winner, Winner, Chicken Dinner!! You won {roll_bet * 4} token(s)"
         game_tokens += roll_bet * 4
-        helpers.update_tokens(game_username, game_tokens)
+        update_tokens(game_username, game_tokens)
     elif slots[0] == slots[1] or slots[1] == slots[2] or slots[0] == slots[2]:
-        print(f"Winner, Winner! You won {roll_bet * 3}")
+        message = f"Winner, Winner! You won {roll_bet * 3} token(s)"
         game_tokens += roll_bet * 3
-        helpers.update_tokens(game_username, game_tokens)
+        update_tokens(game_username, game_tokens)
+    else:
+        message = "You lose!"
 
-    print(f"You now have {game_tokens} in total!")
+    refresh_screen()
+    print(f"{last_roll}\n")
+    print(message)
 
 
 def play(username, tokens):
@@ -119,6 +132,7 @@ def play(username, tokens):
     game_tokens = tokens
     game_username = username
     while not exit_flag:
+        refresh_screen()
         # Ask how much they want to bet on a roll
         input_roll_bet()
         # Roll the slots

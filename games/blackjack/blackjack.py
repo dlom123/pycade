@@ -1,5 +1,6 @@
 import os
 import random
+from helpers import status_bar
 
 # deck dictionary= "card": [number_of_cards, point_value]
 DECK = {'A': [4, 1, 11], "2": [4, 2], "3": [4, 3], "4": [4, 4], "5": [4, 5],
@@ -76,12 +77,7 @@ def draw_table_hand(table_hand, table_deck):
 
 def refresh_screen():
     os.system('clear')
-    status = (
-        "Blackjack"
-        f"\tTokens: {game_tokens}"
-    )
-    if current_bet:
-        status += f"\tCurrent bet: {current_bet}"
+    status = status_bar(game_name="Blackjack", tokens=game_tokens, current_bet=current_bet)
     print(f"{status}\n")
 
 

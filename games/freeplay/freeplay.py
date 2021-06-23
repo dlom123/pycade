@@ -1,5 +1,7 @@
 import helpers
+import os
 import random
+from helpers import status_bar
 
 INIT_REWARD = 5
 still_playing = None
@@ -12,6 +14,12 @@ def init():
     still_playing = True
 
 
+def refresh_screen():
+    os.system('clear')
+    status = status_bar(game_name="Freeplay", tokens=game_tokens)
+    print(f"{status}\n")
+
+
 def play(username, tokens):
     init()
 
@@ -19,6 +27,7 @@ def play(username, tokens):
     game_tokens = tokens
     game_username = username
     while still_playing:
+        refresh_screen()
         r = random.randint(1, 100)
         guess = int(input("Guess the number (1-100): "))
         distance = abs(r - guess)
@@ -28,7 +37,7 @@ def play(username, tokens):
             helpers.update_tokens(game_username, game_tokens)
         else:
             reward = 0
-        print(f"You earned {reward} token(s).")
+        print(f"\nYou earned {reward} token(s).")
         choice = input("Would you like to play again? (y/n) ")
         if choice.lower() == "n":
             return game_tokens
