@@ -1,8 +1,8 @@
 import random
 
 still_playing = None
-game_tokens = None
-game_username = None
+game_tokens = 20
+game_username = "User"
 
 
 def init():
@@ -58,6 +58,8 @@ def enemy_placement(ship_locale={}):
                     start = f"{next_pos[0]}{start[1:]}"
             for pos in ship_pos:
                 track_row = tracker_board[pos[0]]
+                if pos not in track_row:
+                    return enemy_placement(ship_locale=ship_locale)
                 index = track_row.index(pos)
                 track_row[index] = "X"
             ship_locale[ship] = ship_pos
