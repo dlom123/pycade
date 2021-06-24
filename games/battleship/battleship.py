@@ -1,8 +1,8 @@
 import random
 
 still_playing = None
-game_tokens = 20
-game_username = "User"
+game_tokens = None
+game_username = None
 
 
 def init():
