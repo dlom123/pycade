@@ -1,14 +1,20 @@
+"""
+This file can be used as starter code for creating a
+curses-based game -- i.e., "graphics for the terminal"
+"""
+
 import curses
-import os
-from helpers import status_bar, update_tokens
+# from helpers import status_bar, update_tokens
 
 game_tokens = None
 game_username = None
 stdscr = None
 prizes = []
 
+
 def generate_prizes():
     pass
+
 
 def init():
     global stdscr
@@ -17,16 +23,12 @@ def init():
     curses.cbreak()
     stdscr.keypad(True)
 
+
 def shutdown():
     curses.nocbreak()
     stdscr.keypad(False)
     curses.echo()
     curses.endwin()
-
-def refresh_screen():
-    os.system('clear')
-    status = status_bar(game_name="Deal Or No Deal", tokens=game_tokens)
-    print(f"{status}\n")
 
 
 def play(username, tokens):
