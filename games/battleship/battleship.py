@@ -135,8 +135,8 @@ def play(username, tokens):
         again = input("Would you like to play again?][y/n] ")
         if again.lower() == 'y':
             return play(username, game_tokens)
-        print("See you again!")
-        return game_tokens
+    print("See you again!")
+    return game_tokens
 
 
 if __name__ == '__main__':

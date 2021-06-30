@@ -23,10 +23,10 @@ def get_words(number):
 
 
 def blank_it(word_selection):
-    return " ".join(["".join(["_" for _ in word]) for word in word_selection])
+    return " ".join(["".join(["█" for _ in word]) for word in word_selection])
 
 
-def wheel_of_fortune(username, tokens):
+def play(username, tokens):
     global game_tokens, game_username, still_playing
     first_level = list(au[:13])
     second_level = list(au[13:])
@@ -40,6 +40,7 @@ def wheel_of_fortune(username, tokens):
     time.sleep(1)
     print("FORTUNE!")
     time.sleep(2)
+    print("\n")
     decision = input("Would you like to play?[y/n] ")
     if decision.lower() == "y":
         tries = input("Please submit the amount of tokens (7 guesses per token) ")
@@ -67,7 +68,10 @@ def wheel_of_fortune(username, tokens):
             print("")
             print(" ", end="")
             [print(letter, end=" ") for letter in second_level]
+            print('')
+            print("What  ?")
+            [print(redact, end='') for redact in redacted]
 
 
 if __name__ == '__main__':
-    wheel_of_fortune(game_username, game_tokens)
+    play(game_username, game_tokens)
