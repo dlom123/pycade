@@ -1,0 +1,26 @@
+BATTLESHIP:
+X can bet negative number
+X guess the same spot again, still takes away guess. and displays in list of guesses
+X guess list only line breaks after 1st 10 guesses
+- not all ships were placed when game initializes
+
+BLACKJACK:
+X current bet displays in status bar when there is no current bet
+X bet more tokens than we have
+X "Enter bet", entered non number
+X "Enter bet", enter a negative number, lose tokens when you win, win tokes when you lose.
+
+DEAL OR NO DEAL:
+X enter a non number for suitcase selection, crash program 
++ Cannot open suitcases after choosing your suitcase (missing code?)
+
+FREE PLAY:
+X non number submission, crash the program 
+
+SLOTS:
+X after first invalid bet amount, the next correct bet will crash the program 
+X+ 3 of a kind does not actually reward you
+
+SPEED CHECK:
+X if you input non number bet, crashes the program
+- said I had 10 seconds, then told me I was to slow when I took 8 and change

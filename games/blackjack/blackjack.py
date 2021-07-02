@@ -106,6 +106,7 @@ def play(username, tokens):
 
     # game loop
     while still_playing and game_tokens > 0:
+        refresh_screen()
         # if the hand is empty deal 2 cards
         if not player_hand:
             invalid_bet = True
