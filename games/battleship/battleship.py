@@ -11,7 +11,7 @@ column = list(range(1, 11))
 game_board = {row: [f'{row}{number}' for number in column] for row in rows}
 tracker_board = {row: [f'{row}{number}' for number in column] for row in rows}
 row = [True, False]
-checks = ' '.join([' '.join([f"{row}{number}"for number in column])
+checks = ' '.join([' '.join([f"{row}{number}" for number in column])
                    for row in rows]).split()
 ship_dict = {"C": 5, "Bb": 4, "Gb": 3, "S": 3}
 ship_name_dict = {"C": ["Carrier", 2],
@@ -20,7 +20,7 @@ ship_name_dict = {"C": ["Carrier", 2],
                   "S": ["Ship", 5]}
 ships = [2, 3, 3, 4, 5]
 guesses = None
-errors = False
+errors = []
 sunken_ships = None
 guess_list = None
 
@@ -30,7 +30,7 @@ def init():
     global sunken_ships, guess_list
     still_playing = True
     guesses = 0
-    errors = False
+    errors = []
     sunken_ships = []
     guess_list = []
 
@@ -113,14 +113,18 @@ def play(username, tokens, replay=False):
         )
         decision = input("Would you like to play? [y/n] ")
     if replay or decision.lower() == "y":
-        refresh_screen()
-        tries = input("How many tokens will you spend (5 guesses per token)? ")
-        while tries:
+        invalid_input = True
+        while invalid_input:
+            refresh_screen()
+            tries = input("How many tokens will you spend (5 guesses per token)? ")
             try:
-                int(tries)
-                break
+                tries = int(tries)
+                if tries > 0:
+                    invalid_input = False
+                else:
+                    continue
             except Exception:
-                tries = input("Please submit an integer")
+                continue
         guesses = 5 * int(tries)
         game_tokens -= int(tries)
         update_tokens(game_username, game_tokens)
@@ -148,18 +152,21 @@ def play(username, tokens, replay=False):
                 print(message)
                 print("Your guesses:")
                 for i, previous_guess in enumerate(guess_list):
-                    if (i == 10):
+                    if not i % 10:
                         print()
                     print(previous_guess, end=" ")
                 print()
             hit = False
             if errors:
-                print("\nInvalid guess.", end="")
+                print(f"\n{errors[0]}.", end="")
             guess = input("\nWhich square do you guess? ").upper()
             if guess not in checks:
-                errors = True
+                errors.append("Invalid guess.")
                 continue
-            errors = False
+            elif guess in guess_list:
+                errors.append(f"{guess} has already been guessed. Try again.")
+                continue
+            errors = []
             guess_list.append(guess)
             for enemy_ship_positions in position.values():
                 for index, single_ship_position in enumerate(enemy_ship_positions): # noqa

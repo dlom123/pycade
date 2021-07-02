@@ -121,7 +121,11 @@ def pokerdealer():
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(game="Poker", tokens=game_tokens)
+    items = {
+        'game': 'Poker',
+        'tokens': game_tokens
+    }
+    status = status_bar(**items)
     print(f"{status}\n")
 
 

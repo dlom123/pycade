@@ -14,20 +14,26 @@ exit_flag = None
 game_tokens = None
 game_username = None
 current_bet = None
+errors = []
 
 
 def init():
-    global still_playing, game_tokens, game_username, current_bet
+    global still_playing, game_tokens, game_username
+    global errors, current_bet
     still_playing = True
     current_bet = 0
+    errors = []
 
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(
-        game="Speedcheck",
-        tokens=game_tokens,
-        current_bet=current_bet)
+    items = {
+        'game': 'Speedcheck',
+        'tokens': game_tokens
+    }
+    if current_bet:
+        items['current_bet'] = current_bet
+    status = status_bar(**items)
     print(f"{status}\n")
 
 
@@ -51,21 +57,35 @@ def input_continue_playing():
 def play(username, tokens):
     init()
 
-    global game_tokens, game_username, still_playing, current_bet
+    global game_tokens, game_username, still_playing
+    global errors, current_bet
     game_tokens = tokens
     game_username = username
     words = []
     with open('games/speedcheck/longwords.txt', "r") as f:
         words = f.readlines()
     while still_playing and game_tokens > 0:
-        refresh_screen()
-        valid_bet = False
-        while not valid_bet:
-            current_bet = int(input("How many tokens will you bet? "))
-            if current_bet <= game_tokens and current_bet >= 0:
-                game_tokens -= current_bet
-                update_tokens(game_username, game_tokens)
-                valid_bet = True
+        invalid_bet = True
+        while invalid_bet:
+            refresh_screen()
+            if errors:
+                print(f"{errors[0]}")
+                errors.clear()
+            try:
+                tmp_bet = int(input("How many tokens will you bet? "))
+                if tmp_bet <= 0:
+                    errors.append("Invalid bet.")
+                    continue
+                elif tmp_bet > game_tokens:
+                    errors.append("Cannot bet more tokens than you have.")
+                    continue
+                invalid_bet = False
+            except Exception:
+                errors.append("Invalid bet.")
+                continue
+        current_bet = tmp_bet
+        game_tokens -= current_bet
+        update_tokens(game_username, game_tokens)
         time1 = datetime.now()
         secret_word = random.choice(words)
         time_to_beat = int(len(secret_word) / 2)

@@ -45,10 +45,13 @@ def init():
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(
-        game="Roulette",
-        tokens=game_tokens,
-        current_bet=current_bet)
+    items = {
+        'game': 'Roulette',
+        'tokens': game_tokens
+    }
+    if current_bet:
+        items['current_bet'] = current_bet
+    status = status_bar(**items)
     print(f"{status}\n")
 
 

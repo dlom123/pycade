@@ -34,10 +34,12 @@ suit_cases_values = [
     750_000,
     1_000_000
 ]
+errors = []
 
 
 def init():
     global game_tokens, user_suitcase, remaining_cases
+    global errors
     game_tokens = 0
     user_suitcase = {}
     shuffled_values = random.sample(suit_cases_values, len(suit_cases_values))
@@ -45,11 +47,16 @@ def init():
         k+1: v
         for k, v in enumerate(shuffled_values)
     }
+    errors = []
 
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(game="Deal Or No Deal", tokens=game_tokens)
+    items = {
+        'game': 'Deal Or No Deal',
+        'tokens': game_tokens
+    }
+    status = status_bar(**items)
     print(f"{status}\n")
 
 
@@ -57,14 +64,29 @@ def play(username, tokens):
     init()
 
     global game_tokens, game_username, user_suitcase
+    global errors
     game_tokens = tokens
     game_username = username
     # if tokens < 1000:
     #     print("You need at least 1000 tokens to play!")
     #     return game_tokens
-    refresh_screen()
-    show_remaining_cases()
-    choice = int(input("Choose a suitcase [1-26]: "))
+    invalid_suitcase = True
+    while invalid_suitcase:
+        refresh_screen()
+        show_remaining_cases()
+        if errors:
+            print(f"{errors[0]}")
+            errors.clear()
+        try:
+            choice = int(input("Choose a suitcase [1-26]: "))
+            if choice < 1 or choice > len(suit_cases_values):
+                errors.append("Invalid suitcase.")
+                continue
+            invalid_suitcase = False
+        except Exception:
+            errors.append("Invalid suitcase.")
+            continue
+
     popped = remaining_cases.pop(choice)
     user_suitcase[choice] = popped
 

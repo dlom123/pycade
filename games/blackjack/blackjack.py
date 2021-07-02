@@ -11,11 +11,13 @@ still_playing = None
 game_tokens = None
 game_username = None
 current_bet = None
+errors = []
 
 
 def init():
     global still_playing
     still_playing = True
+    errors = []
 
 
 def deal_one(one_hand, deal_deck):
@@ -77,10 +79,13 @@ def draw_table_hand(table_hand, table_deck):
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(
-        game="Blackjack",
-        tokens=game_tokens,
-        current_bet=current_bet)
+    items = {
+        'game': 'Blackjack',
+        'tokens': game_tokens
+    }
+    if current_bet:
+        items['current_bet'] = current_bet
+    status = status_bar(**items)
     print(f"{status}\n")
 
 
@@ -88,7 +93,7 @@ def play(username, tokens):
     init()
 
     global game_tokens, game_username, still_playing
-    global current_bet
+    global current_bet, errors
     game_tokens = tokens
     game_username = username
 
@@ -102,9 +107,26 @@ def play(username, tokens):
     # game loop
     while still_playing and game_tokens > 0:
         # if the hand is empty deal 2 cards
-        refresh_screen()
         if not player_hand:
-            current_bet = int(input("Enter bet: "))
+            invalid_bet = True
+            while invalid_bet:
+                refresh_screen()
+                if errors:
+                    print(f"{errors[0]}")
+                    errors.clear()
+                try:
+                    tmp_bet = int(input("Enter bet: "))
+                    if tmp_bet > game_tokens:
+                        errors.append("Cannot bet more tokens than you have.")
+                        continue
+                    elif tmp_bet <= 0:
+                        errors.append("Invalid bet.")
+                        continue
+                except Exception:
+                    errors.append("Invalid bet.")
+                    continue
+                invalid_bet = False
+                current_bet = tmp_bet
             refresh_screen()
             deal_hands(player_hand, table_hand, table_deck)
         if sum_hand(player_hand) <= 21:

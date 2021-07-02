@@ -11,23 +11,31 @@ possibilities = ["🍉", "7", "🍇", "💎", "🍒", "🍊", "🔔", "🍋", "�
 slots = None
 game_tokens = None
 game_username = None
-roll_bet = None
+current_bet = None
 last_roll = None
 exit_flag = None
+errors = []
 
 
 def init():
-    global slots, game_tokens, roll_bet, last_roll, exit_flag
+    global slots, game_tokens, current_bet, last_roll
+    global exit_flag, errors
     slots = [None, None, None]
-    game_tokens = 0
-    roll_bet = 0
+    current_bet = 0
     last_roll = None
     exit_flag = False
+    errors = []
 
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(game="Slots", tokens=game_tokens)
+    items = {
+        'game': 'Slots',
+        'tokens': game_tokens
+    }
+    if current_bet:
+        items['current_bet'] = current_bet
+    status = status_bar(**items)
     print(f"{status}\n")
 
 
@@ -37,7 +45,6 @@ def roll():
     """
     for index in range(len(slots)):
         slots[index] = random.choice(possibilities)
-
     display_roll(5)
 
 
@@ -63,25 +70,38 @@ def display_roll(rolls):
     print(f"{slots[0]} | {slots[1]} | {slots[2]}\n")
 
 
-def input_roll_bet():
+def input_bet():
     """
     For each roll we ask the player to bet some tokens on that roll, then
     subtract that amount from the total amount of tokens put in
     """
-    global roll_bet, game_tokens
-    str_bet = input("How many tokens would you like to bet on this roll: ")
+    global current_bet, game_tokens
 
-    if not str_bet.isnumeric():
-        print("Please enter a number.")
-        input_roll_bet()
+    invalid_bet = True
+    while invalid_bet:
+        refresh_screen()
+        if errors:
+            print(f"{errors[0]}")
+            errors.clear()
+        try:
+            tmp_bet = int(input("How many tokens would you like to bet on this roll: "))
+            if tmp_bet <= 0:
+                errors.append("Invalid bet.")
+                continue
+            elif tmp_bet > game_tokens:
+                errors.append("Cannot bet more tokens than you have.")
+                continue
+            invalid_bet = False
+        except Exception:
+            errors.append("Invalid bet.")
+            continue
 
-    roll_bet = int(str_bet)
-
-    if roll_bet > game_tokens:
+    current_bet = tmp_bet
+    if current_bet > game_tokens:
         print(f"Max possible bet {game_tokens}")
-        input_roll_bet()
+        input_bet()
 
-    game_tokens -= roll_bet
+    game_tokens -= current_bet
     update_tokens(game_username, game_tokens)
 
 
@@ -110,31 +130,28 @@ def check_rewards():
     """
     global game_tokens
     if slots[0] == slots[1] == slots[2]:
-        message = f"Winner, Winner, Chicken Dinner!! You won {roll_bet * 4} token(s)"
-        game_tokens += roll_bet * 4
+        message = f"Winner, Winner, Chicken Dinner!! You won {current_bet * 4} token(s)"
+        game_tokens += current_bet * 4
         update_tokens(game_username, game_tokens)
     elif slots[0] == slots[1] or slots[1] == slots[2] or slots[0] == slots[2]:
-        message = f"Winner, Winner! You won {roll_bet * 3} token(s)"
-        game_tokens += roll_bet * 3
+        message = f"Winner, Winner! You won {current_bet * 3} token(s)"
+        game_tokens += current_bet * 3
         update_tokens(game_username, game_tokens)
     else:
         message = "You lose!"
-
-    refresh_screen()
-    print(f"{last_roll}\n")
     print(message)
 
 
 def play(username, tokens):
     init()
 
-    global game_tokens, game_username
+    global game_tokens, game_username, current_bet
     game_tokens = tokens
     game_username = username
     while not exit_flag:
         refresh_screen()
         # Ask how much they want to bet on a roll
-        input_roll_bet()
+        input_bet()
         # Roll the slots
         roll()
         # check rewards
@@ -142,9 +159,7 @@ def play(username, tokens):
         check_rewards()
         # Check to see if the player can and wants to continue playing
         input_continue_playing()
-    # TODO: reset globals to their initial values so that the next time
-    #       this game is launched it is reinitialized
-
+        current_bet = 0
     return game_tokens
 
 
