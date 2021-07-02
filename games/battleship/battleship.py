@@ -177,7 +177,6 @@ def play(username, tokens, replay=False):
         refresh_screen()
         display_board(squares)
         if len(sunken_ships) == len(ship_dict.keys()):
-<<<<<<< HEAD
             winnings = sum([ship_name_dict[ship][1] for ship in sunken_ships])
             msg_win = f"You win! (+{winnings} tokens)"
             print(f"\n{msg_win:^30}\n")
@@ -196,18 +195,6 @@ def play(username, tokens, replay=False):
                 "You are out of tokens.\n"
                 "Press a key to return to the main menu."
             ))
-=======
-            print("You win!")
-        elif n == 0:
-            print(f"You lose. Nice Try Admiral {username}")
-        winnings = sum([ship_name_dict[ship][1] for ship in sunken_ships])
-        game_tokens += winnings
-        print(f"You won {winnings} tokens")
-        again = input("Would you like to play again?][y/n] ")
-        if again.lower() == 'y':
-            return play(username, game_tokens)
-    print("See you again!")
->>>>>>> 27401c9ade7da0b15bc174732d5181b3b7a56c68
     return game_tokens
 
 
