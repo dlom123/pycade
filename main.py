@@ -2,6 +2,12 @@
 # 2. Choose a game
 # 3. Play that game
 #       - exit at any time by entering "exit"
+
+"""
+TODO
+- display cost of each game along right side of game menu
+"""
+
 import hashlib
 import os
 import time
@@ -18,7 +24,10 @@ from games.speedcheck import speedcheck
 from helpers import status_bar
 
 START_TOKENS = 100
-available_games = sorted(os.listdir('games'))
+DISABLED = ['poker']
+available_games = sorted(
+    [game for game in os.listdir('games') if game not in DISABLED]
+)
 tokens = 0
 username = None
 
@@ -60,7 +69,7 @@ def show_game_menu():
         if choice.isdigit() and 0 < int(choice) <= len(available_games):
             break
         elif choice.lower() == 'q':
-            print(f"Thanks for playing, {username}!")
+            print(f"\nThanks for playing, {username}!")
             time.sleep(2)
             return
         error = "Invalid choice. Please enter a valid number."

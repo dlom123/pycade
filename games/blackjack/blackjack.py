@@ -77,7 +77,10 @@ def draw_table_hand(table_hand, table_deck):
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(game_name="Blackjack", tokens=game_tokens, current_bet=current_bet)
+    status = status_bar(
+        game="Blackjack",
+        tokens=game_tokens,
+        current_bet=current_bet)
     print(f"{status}\n")
 
 

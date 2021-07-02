@@ -49,7 +49,7 @@ def init():
 
 def refresh_screen():
     os.system('clear')
-    status = status_bar(game_name="Deal Or No Deal", tokens=game_tokens)
+    status = status_bar(game="Deal Or No Deal", tokens=game_tokens)
     print(f"{status}\n")
 
 

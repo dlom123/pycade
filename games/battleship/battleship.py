@@ -1,14 +1,10 @@
+import os
 import random
+from helpers import status_bar, update_tokens
 
 still_playing = None
 game_tokens = None
 game_username = None
-
-
-def init():
-    global still_playing
-    still_playing = True
-
 
 rows = "ABCDEFGHIJ"
 column = list(range(1, 11))
@@ -23,6 +19,32 @@ ship_name_dict = {"C": ["Carrier", 2],
                   "Gb": ["Gun Boat", 5],
                   "S": ["Ship", 5]}
 ships = [2, 3, 3, 4, 5]
+guesses = None
+errors = False
+sunken_ships = None
+guess_list = None
+
+
+def init():
+    global still_playing, guesses, errors
+    global sunken_ships, guess_list
+    still_playing = True
+    guesses = 0
+    errors = False
+    sunken_ships = []
+    guess_list = []
+
+
+def refresh_screen():
+    os.system('clear')
+    items = {
+        'game': 'Battleship',
+        'tokens': game_tokens
+    }
+    if guesses:
+        items['guesses'] = guesses
+    status = status_bar(**items)
+    print(f"{status}\n")
 
 
 def enemy_placement(ship_locale={}):
@@ -66,54 +88,78 @@ def enemy_placement(ship_locale={}):
     return ship_locale
 
 
-def play(username, tokens):
+def display_board(squares):
+    for letter in squares:
+        for number in letter:
+            print(f'{number}', end=" ")
+        print()
+
+
+def play(username, tokens, replay=False):
     init()
 
     global game_tokens, game_username, still_playing, checks
     global ship_name_dict, game_board, column, rows, ship_dict
+    global guesses, errors
     game_tokens = tokens
     game_username = username
-    sunken_ships = []
-    guess_list = []
     position = enemy_placement()
-    print(f"Battleship\tTokens: {game_tokens}\n")
-    print("Welcome to Battleship! Run out of guesses and good-bye fleet.")
-    decision = input("Would you like to play?[y/n] ")
-    if decision.lower() == "y":
-        tries = input("Please submit the amount of tokens (5 guesses per token) ") # noqa
+    hit = False
+
+    if not replay:
+        refresh_screen()
+        print(
+            "Welcome to Battleship! Run out of guesses and good-bye fleet!\n"
+        )
+        decision = input("Would you like to play? [y/n] ")
+    if replay or decision.lower() == "y":
+        refresh_screen()
+        tries = input("How many tokens will you spend (5 guesses per token)? ")
         while tries:
             try:
                 int(tries)
                 break
             except Exception:
                 tries = input("Please submit an integer")
-        n = 5*int(tries)
+        guesses = 5 * int(tries)
         game_tokens -= int(tries)
-        print(f"You have {n} guesses")
-        choices = [[f"{row}{number}" for number in column]for row in rows]
-        while n or len(sunken_ships) == len(ship_dict.keys()):
-            hit = False
-            for letter in choices:
-                for number in letter:
-                    print(f'{number}', end=" ")
-                print("\n")
-            print(f'You have {n} guesses left')
+        update_tokens(game_username, game_tokens)
+
+        squares = [[f"{row}{number}" for number in column] for row in rows]
+        while guesses or len(sunken_ships) == len(ship_dict.keys()):
+            refresh_screen()
+            display_board(squares)
             if guess_list:
-                print("Here are your guesses:")
-                [print(previous_guess, end=" ") for previous_guess in guess_list] # noqa
-                print("\n")
+                message = ""
                 if not hit:
-                    print("MISS")
+                    message += f"\n{'-' * 10:^30}\n"
+                    message += f"{'|  MISS  |':^30}\n"
+                    message += f"{'-' * 10:^30}\n"
                 elif hit:
-                    print("HIT!!")
+                    message += f"\n{'-' * 10:^30}\n"
+                    message += f"{'| HIT!!! |':^30}\n"
+                    message += f"{'-' * 10:^30}\n"
                 for ship_type in position.keys():
-                    if position[ship_type] == [] and ship_type not in sunken_ships: # noqa
-                        print(f"You sunk my {ship_name_dict[ship_type][0]}!!!")
+                    if position[ship_type] == [] and ship_type not in sunken_ships:  # noqa
+                        ship_name = ship_name_dict[ship_type][0]
+                        msg_sunk = f'You sunk my {ship_name}!!!'
+                        message += f"\n{msg_sunk:^30}\n"
                         sunken_ships.append(ship_type)
-                print('\n')
-            guess = input("Here are your selections. What square do you guess?").upper() # noqa
-            while guess not in checks:
-                guess = input("Sorry, that is not on the board.Try again. What square do you guess?") # noqa
+                print(message)
+                print("Your guesses:")
+                for i, previous_guess in enumerate(guess_list):
+                    if (i == 10):
+                        print()
+                    print(previous_guess, end=" ")
+                print()
+            hit = False
+            if errors:
+                print("\nInvalid guess.", end="")
+            guess = input("\nWhich square do you guess? ").upper()
+            if guess not in checks:
+                errors = True
+                continue
+            errors = False
             guess_list.append(guess)
             for enemy_ship_positions in position.values():
                 for index, single_ship_position in enumerate(enemy_ship_positions): # noqa
@@ -123,20 +169,33 @@ def play(username, tokens):
                         break
                 if hit:
                     break
-            n -= 1
-            choices = [[f"{cells}" if guess != cells else (" O" if cells == guess and hit else " X") for cells in rows]for rows in choices] # noqa
+            if not hit:
+                guesses -= 1
+            squares = [[f"{cells}" if guess != cells else (" O" if cells == guess and hit else " X") for cells in rows] for rows in squares] # noqa
+
+        # end of game
+        refresh_screen()
+        display_board(squares)
         if len(sunken_ships) == len(ship_dict.keys()):
-            print("You win!")
-        elif n == 0:
-            print(f"You lose. Nice Try Admiral {username}")
-        winnings = sum([ship_name_dict[ship][1] for ship in sunken_ships])
-        game_tokens += winnings
-        print(f"You won {winnings} tokens")
-        again = input("Would you like to play again?][y/n] ")
-        if again.lower() == 'y':
-            return play(username, game_tokens)
-        print("See you again!")
-        return game_tokens
+            winnings = sum([ship_name_dict[ship][1] for ship in sunken_ships])
+            msg_win = f"You win! (+{winnings} tokens)"
+            print(f"\n{msg_win:^30}\n")
+            game_tokens += winnings
+            update_tokens(game_username, game_tokens)
+        elif guesses == 0:
+            print(f"\n{'GAME OVER':^30}")
+            msg_nice_try = f"Nice Try, Admiral {username.title()}."
+            print(f"{msg_nice_try:^30}\n")
+        if game_tokens:
+            again = input("Would you like to play again? [y/n] ")
+            if again.lower() == 'y':
+                return play(username, game_tokens, replay=True)
+        else:
+            input((
+                "You are out of tokens.\n"
+                "Press a key to return to the main menu."
+            ))
+    return game_tokens
 
 
 if __name__ == '__main__':

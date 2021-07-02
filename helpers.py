@@ -1,20 +1,17 @@
 import re
 
 
-def status_bar(game_name=None, tokens=None, current_bet=None):
+def status_bar(**kwargs):
+    # do not display the key name for these
+    value_only = ('game')
     status = ""
-    if game_name:
-        status += game_name
-    if tokens:
-        if status:
+    for k, v in kwargs.items():
+        if k not in value_only:
+            title = k.replace('_', ' ').title()
+            status += f"{title}: "
+        status += f"{v}\t"
+        if type(v) == str and len(v) > 12:
             status += "\t"
-            if len(game_name) > 12:
-                status += "\t"
-        status += f"Tokens: {tokens}"
-    if current_bet:
-        if status:
-            status += "\t"
-        status += f"\tCurrent bet: {current_bet}"
     return status
 
 

@@ -25,7 +25,7 @@ def init():
 def refresh_screen():
     os.system('clear')
     status = status_bar(
-        game_name="Speedcheck",
+        game="Speedcheck",
         tokens=game_tokens,
         current_bet=current_bet)
     print(f"{status}\n")
