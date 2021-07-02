@@ -15,6 +15,7 @@ from games.poker import poker
 from games.roulette import roulette
 from games.slots import slots
 from games.speedcheck import speedcheck
+from games.wheel import wheel
 from helpers import status_bar
 
 START_TOKENS = 100
@@ -158,6 +159,8 @@ def play_game(game_number):
         tokens = slots.play(username, tokens)
     elif game == "speedcheck":
         tokens = speedcheck.play(username, tokens)
+    elif game == "wheel":
+        tokens = wheel.play(username, tokens)
 
     show_game_menu()
 
