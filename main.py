@@ -22,7 +22,7 @@ from games.roulette import roulette
 from games.slots import slots
 from games.speedcheck import speedcheck
 from games.wheel_of_python import wheel
-from helpers import status_bar
+from helpers import con, cur, status_bar
 
 START_TOKENS = 100
 DISABLED = ['poker']
@@ -31,15 +31,14 @@ available_games = sorted(
 )
 tokens = 0
 username = None
+errors = []
 
 
 def main():
-    # if a 'data' directory does not exist, create it
-    if not os.path.exists('data'):
-        os.mkdir('data')
     os.system('clear')
     choice = show_main_menu()
     make_choice(main_menu_choices, choice)
+    con.close()
 
 
 def show_main_menu():
@@ -84,40 +83,38 @@ def make_choice(choices: dict, choice: str):
 
 
 def login(error: str = ""):
-    os.system('clear')
-    if error:
-        print(f"{error}\n")
-    print_banner("Log In")
-    input_username = input("Username: ")
-    input_password = input("Password: ")
-    # open the accounts file
-    found = False
-    with open("data/accounts.txt") as f:
-        for line in f:
-            stored_username, stored_password = line.strip().split(':')
-            if input_username == stored_username:
-                found = True
-                break
-    if not found:
-        login(error="Invalid login")
+    valid_login = False
+    while not valid_login:
+        os.system('clear')
+        if errors:
+            print(f"{errors[0]}\n")
+            errors.clear()
+        print_banner("Log In")
 
-    # found a valid username match
+        input_username = input("Username: ")
+        input_password = input("Password: ")
+        encrypted_password = encrypt_password(input_password)
+        cur.execute("""SELECT * FROM accounts
+                    WHERE username = ? AND password = ?""",
+                    (input_username, encrypted_password))
+        account = cur.fetchone()
+        if account:
+            valid_login = True
+        else:
+            errors.append("Invalid login")
+
+    account_id = account[0]
+    # user has logged in
     global username
     username = input_username
-    encrypted_password = encrypt_password(input_password)
-    if encrypted_password != stored_password:
-        login(error="Invalid login")
-    print("Welcome!")
 
     # retrieve the user's stored tokens
     global tokens
-    with open("data/tokens.txt") as f:
-        # find this user's line
-        for line in f:
-            f_username, num_tokens = line.strip().split(':')
-            if f_username == input_username:
-                tokens = int(num_tokens)
-                break
+    cur.execute("""SELECT * FROM tokens WHERE account_id = ?""",
+                (account_id,))
+    r_tokens = cur.fetchone()
+    tokens_id, tokens_account_id, tokens_amount = r_tokens
+    tokens = tokens_amount
     show_game_menu()
 
 
@@ -126,11 +123,12 @@ def create_account():
     username = input("Username: ")
     password = input("Password: ")
     encrypted_password = encrypt_password(password)
-    with open("data/accounts.txt", "a") as f:
-        f.write(f"{username}:{encrypted_password}\n")
-
-    with open("data/tokens.txt", "a") as f:
-        f.write(f"{username}:{START_TOKENS}\n")
+    cur.execute("""INSERT INTO accounts(username, password) VALUES (?, ?)""",
+                (username, encrypted_password))
+    con.commit()
+    cur.execute("""INSERT INTO tokens(account_id, amount) VALUES (?, ?)""",
+                (cur.lastrowid, START_TOKENS))
+    con.commit()
     show_main_menu()
 
 
