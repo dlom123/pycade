@@ -1,46 +1,51 @@
 import os
 import random
 from helpers import status_bar
+import math
+import time
 
 game_tokens = None
 game_username = None
 user_suitcase = {}
 remaining_cases = None
+still_playing = True
 suit_cases_values = [
     0,
     1,
-    5,
-    10,
-    25,
-    50,
-    75,
-    100,
-    200,
-    300,
+    2,
+    4,
+    6,
+    8,
+    16,
+    24,
+    32,
+    40,
+    48,
+    56,
+    64,
+    128,
+    192,
+    256,
+    320,
+    384,
+    385,
     400,
+    404,
+    418,  # teapot
+    420,
     500,
-    750,
-    1_000,
-    5_000,
-    10_000,
-    25_000,
-    50_000,
-    75_000,
-    100_000,
-    200_000,
-    300_000,
-    400_000,
-    500_000,
-    750_000,
-    1_000_000
+    512,
+    1337
 ]
 errors = []
+current_round = None
 
 
 def init():
-    global game_tokens, user_suitcase, remaining_cases
-    global errors
+    global game_tokens, user_suitcase, remaining_cases, still_playing
+    global errors, current_round
     game_tokens = 0
+    still_playing = True
     user_suitcase = {}
     shuffled_values = random.sample(suit_cases_values, len(suit_cases_values))
     remaining_cases = {
@@ -48,6 +53,7 @@ def init():
         for k, v in enumerate(shuffled_values)
     }
     errors = []
+    current_round = 0
 
 
 def refresh_screen():
@@ -60,11 +66,48 @@ def refresh_screen():
     print(f"{status}\n")
 
 
+def get_bankers_offer():
+    """
+    you take each remaining value and square it. Then you sum up all of these
+    squared terms, divide by how many cases are left, then take the square
+    root of the whole thing
+    """
+    global remaining_cases
+    sqd_sum = sum([remaining_cases[val] ** 2 for val in remaining_cases])
+    return math.floor(((sqd_sum / len(remaining_cases)) ** .5))
+
+
+def make_bankers_offer():
+    """
+    gets the bankers offer and then offers it to the player.
+    """
+    global game_tokens, still_playing
+    offer = get_bankers_offer()
+    refresh_screen()
+    show_remaining_cases(current_round, 0)
+    print(f"The banker would like to offer you {offer} to walk away")
+    prompt = input("Deal or No Deal!\n")
+
+    if prompt.lower() == "deal":
+        still_playing = False
+        num = list(user_suitcase.keys())[0]
+        val = user_suitcase[num]
+        for i in range(1, 4):
+            refresh_screen()
+            print(f"You chose case: {num}, which contained{'.' * i}")
+        print(f"{val} tokens!")
+        game_tokens += offer
+        input("")
+
+
 def play(username, tokens):
+    """
+    This is the main loop of the game
+    """
     init()
 
-    global game_tokens, game_username, user_suitcase
-    global errors
+    global game_tokens, game_username, user_suitcase, still_playing
+    global errors, current_round
     game_tokens = tokens
     game_username = username
     # if tokens < 1000:
@@ -73,7 +116,7 @@ def play(username, tokens):
     invalid_suitcase = True
     while invalid_suitcase:
         refresh_screen()
-        show_remaining_cases()
+        show_remaining_cases(0, 1)
         if errors:
             print(f"{errors[0]}")
             errors.clear()
@@ -89,36 +132,61 @@ def play(username, tokens):
 
     popped = remaining_cases.pop(choice)
     user_suitcase[choice] = popped
+    while still_playing:
+        current_round += 1
+        for case in range(max(6-current_round+1, 1)):
+            invalid_suitcase = True
+            while invalid_suitcase:
+                refresh_screen()
+                show_remaining_cases(
+                    current_round,
+                    max(6 - (current_round - 1) - case, 1))
+                if errors:
+                    print(f"{errors[0]}")
+                    errors.clear()
+                try:
+                    choice = int(input("Open a suitcase: "))
+                    if choice < 1 or choice > len(suit_cases_values):
+                        errors.append("Invalid suitcase.")
+                        continue
+                    elif choice not in remaining_cases:
+                        errors.append(f"Suitcase {choice} is not available.")
+                        continue
+                    invalid_suitcase = False
+                except Exception:
+                    errors.append("Invalid suitcase.")
+                    continue
+            popped = remaining_cases.pop(choice)
+            print(f"Suitcase {choice} contained {popped}")
+            time.sleep(2)
 
-    refresh_screen()
-    show_remaining_cases()
-    # 1. pick a case to reveal
-    choice = int(input("Open a suitcase: "))
-    # 2. reveal that case
-    # 3. banker makes an offer
-        # user chooses to "deal" or "no deal"
-        # "no deal" - repeat from step 1
-        # "deal" - player earns the amount of tokens offered by the banker
-            # reveal their chosen suitcase
+        make_bankers_offer()
+        if len(remaining_cases) <= 1:
+            still_playing = False
 
+    print(game_tokens)
     return game_tokens
 
 
-def show_remaining_cases():
+def show_remaining_cases(round, cases_left_in_round):
+    """
+    Displays the current game state to the user
+    """
+    refresh_screen()
+    print(f"Round {round}")
+    print(f"Cases Left To Pick: {cases_left_in_round}\n")
     row_sizes = (6, 7, 7, 6)
     for row, width in enumerate(row_sizes):
-        offset = sum(row_sizes[0:row+1])  # 6, 13, 20, 26
+        offset = sum(row_sizes[0:row+1])
         start = 27 - offset
         row_string = ""
         for col in range(start, start+width):
-            # i = 27 - (col + offset + 1)
             if col in remaining_cases:
                 row_string += f"{col:>4}"
             else:
-                row_string += '  '
+                row_string += '    '
         print(f"{row_string:^28}")
     print()
-
 
 
 if __name__ == '__main__':
