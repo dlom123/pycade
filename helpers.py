@@ -1,4 +1,8 @@
 import re
+import sqlite3
+
+con = sqlite3.connect('kca.db')
+cur = con.cursor()
 
 
 def status_bar(**kwargs):
@@ -17,13 +21,13 @@ def status_bar(**kwargs):
 
 def update_tokens(username, tokens):
     """Writes the token amount to the tokens file for the given username."""
-    with open("data/tokens.txt") as f:
-        contents = f.read()
+    # get the account id from the username
+    cur.execute("""SELECT * FROM accounts
+                   WHERE accounts.username = ?""", (username,))
+    r = cur.fetchone()
+    account_id = r[0]
 
-    new_contents = re.sub(
-        rf"{username}:\d+",
-        f"{username}:{tokens}",
-        contents)
-
-    with open("data/tokens.txt", "w") as f:
-        f.write(new_contents)
+    cur.execute("""UPDATE tokens
+                   SET amount = ?
+                   WHERE account_id = ?""", (tokens, account_id))
+    con.commit()
