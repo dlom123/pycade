@@ -17,6 +17,7 @@ from games.blackjack import blackjack
 from games.crane_game import crane
 from games.deal_or_no_deal import dealornodeal
 from games.freeplay import freeplay
+from games.leaderboard import leaderboard
 from games.poker import poker
 from games.roulette import roulette
 from games.slots import slots
@@ -27,8 +28,11 @@ from helpers import con, cur, status_bar
 START_TOKENS = 100
 DISABLED = ['poker']
 available_games = sorted(
-    [game for game in os.listdir('games') if game not in DISABLED]
+    [game for game in os.listdir('games')
+     if game not in DISABLED
+        and game != 'leaderboard']
 )
+available_games.append('leaderboard')
 tokens = 0
 username = None
 errors = []
@@ -168,6 +172,8 @@ def play_game(game_number):
         tokens = speedcheck.play(username, tokens)
     elif game == "wheel_of_python":
         tokens = wheel.play(username, tokens)
+    elif game == "leaderboard":
+        leaderboard.show()
 
     show_game_menu()
 
