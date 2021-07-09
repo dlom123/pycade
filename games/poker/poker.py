@@ -1,5 +1,7 @@
-import sys
+import os
 import random
+import sys
+from helpers import status_bar
 # imported random and used it. check
 # mulligan? types of poker holdem,
 # 5 card etc
@@ -11,9 +13,15 @@ import random
 # copy ?
 
 #player and table tokens
-game_tokens = 0
+game_tokens = None
+game_username = None
 player_tokens = 1000
 table_tokens = 1000
+still_playing = False
+player_hand = []
+computer_hand = []
+table_pot = 0
+
 # win conditions in order of importance
 # s_flush: five cards of the same suit in sequence
 # four_kind: Four cards of the same rank (e.g. A♣, A♠, A♥, A◆)
@@ -23,6 +31,13 @@ table_tokens = 1000
 # three_kind: Three cards of the same rank plus two unequal cards
 # two_pairs: two cards of equal rank
 # 
+
+def init():
+    global still_playing, player_hand, computer_hand
+    still_playing = True
+    player_hand = []
+    computer_hand = []
+
 
 def build_deck():
     """build an ordered deck using list comprehensions (thanks"""
@@ -38,13 +53,10 @@ def build_deck():
 
 def pokerdealer():
     """deal a random hand of num cards"""
-    global player_tokens
-    global table_tokens
+    global player_tokens, table_tokens, table_pot
     random_deck = build_deck()
     random.shuffle(random_deck)
-    player_hand = []
     # deal the hands"
-    computer_hand = []
     while len(computer_hand) < 5:
         player_hand.append(random_deck.pop())
         computer_hand.append(random_deck.pop())
@@ -62,38 +74,38 @@ def pokerdealer():
     loop = 0
     table_pot = 10
     auntie = 2
-    place_bets = input("starting bet is 10 tokens.  Do you wish to proceed?")
-    if place_bets.lower() == "yes" or place_bets.lower() == "y":
+    place_bets = input("Starting bet is 10 tokens. Do you wish to proceed? (y/n) ")
+    if place_bets.lower().startswith("y"):
         player_tokens -= 10
         table_pot += 10
         while loop < 3:
-            print(f"Current pot: {table_pot}")
-            print(
-                f"""here is your hand of {5} cards: {player_hand} \n computerhand: {[ "**" for _ in computer_hand]}""")
+            display_table()
             mulligan_choices = input(
-                "what are the indices of the cards you want to mulligan in a csv or 'n': ")
+                "Which card(s) would you like to mulligan? ('n' or card position(s) e.g. 2,4,5): ")
             if mulligan_choices == "n":
-                print("ok you can keep those cards")
                 continue
             else:
                 for choice in mulligan_choices.split(","):
-                    player_hand[int(choice)] = random_deck.pop()
-                print(player_hand)
-                fold_or_stay = input("Fold or stay?: ")
-                if fold_or_stay.lower() == "fold" or fold_or_stay[0].lower() == "f":
+                    player_hand[int(choice)-1] = random_deck.pop()
+                display_table()
+                fold_or_stay = input("Fold or stay? (f/s) ")
+                if fold_or_stay.lower().startswith("f"):
                     break
-                raised_or_call = input("Are you going to raise or call? ")
-                if raised_or_call.lower() == "r" or raised_or_call.lower() == "raise":
+                display_table()
+                raised_or_call = input("Are you going to raise or call? (r/c) ")
+                if raised_or_call.lower().startswith("r"):
                     auntie = input("Up your ante: ")
                     while auntie:
                         try:
                             while int(auntie) > player_tokens:
-                                auntie = input("Too big for your britches.  Bet in your range: ")
+                                display_table()
+                                auntie = input("Too big for your britches. Bet within your available token amount: ")
                             player_tokens -= int(auntie)
                             table_pot += int(auntie)
                             break
                         except (ValueError):
-                            auntie = input("That's not a number.  What's your ante?: ")
+                            display_table()
+                            auntie = input("That's not a number. What's your ante?: ")
                 else:
                     player_tokens -= auntie
                     table_pot += auntie
@@ -103,18 +115,38 @@ def pokerdealer():
     # may need to be sooner.
     # while len(computer_hand) < num:
     #     computer_hand.append(random_deck.pop())
-        print(
-            f"here is your hand of {5} cards: {player_hand} \n computerhand: {computer_hand}")
-    print("Come back when you have the tokens")
+        display_table()
+    print("Come back when you have the tokens!")
+
+
+def refresh_screen():
+    os.system('clear')
+    items = {
+        'game': 'Poker',
+        'tokens': game_tokens
+    }
+    status = status_bar(**items)
+    print(f"{status}\n")
+
+
+def display_table():
+    refresh_screen()
+    print(f"Current pot: {table_pot}\n")
+    print((
+        f"Player's hand: {player_hand}\n"
+        f"Dealer's hand: {[ '**' for _ in computer_hand]}\n"
+    ))
 
 
 def play(username, tokens):
     """Main program code."""
-    global game_tokens
+    init()
+
+    global game_tokens, game_username
     game_tokens = tokens
+    game_username = username
+    refresh_screen()
     pokerdealer()
-    # TODO: reset globals to their initial values so that the next time
-    #       this game is launched it is reinitialized
 
     return game_tokens
 
