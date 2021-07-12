@@ -35,6 +35,7 @@ def refresh_screen():
     }
     if current_bet:
         items['current_bet'] = current_bet
+    items['username'] = game_username
     status = status_bar(**items)
     print(f"{status}\n")
 
@@ -56,7 +57,7 @@ def display_roll(rolls):
     The rolls variable is how many times we roll the temporary slots before
     displaying the actual rolls of each slot
     """
-    global last_roll
+    global last_roll, current_bet
     temp_slots = [None, None, None]
     for _ in range(rolls):
         refresh_screen()
@@ -66,6 +67,7 @@ def display_roll(rolls):
         print(last_roll)
         time.sleep(0.5)
 
+    current_bet = 0
     refresh_screen()
     print(f"{slots[0]} | {slots[1]} | {slots[2]}\n")
 

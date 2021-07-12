@@ -43,6 +43,7 @@ def refresh_screen():
     }
     if guesses:
         items['guesses'] = guesses
+    items['username'] = game_username
     status = status_bar(**items)
     print(f"{status}\n")
 
