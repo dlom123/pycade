@@ -39,9 +39,12 @@ errors = []
 
 
 def main():
-    os.system('clear')
-    choice = show_main_menu()
-    make_choice(main_menu_choices, choice)
+    while True:
+        os.system('clear')
+        choice = show_main_menu()
+        if choice.lower() == 'q':
+            break
+        main_menu_choices[int(choice)]()
     con.close()
 
 
@@ -51,7 +54,7 @@ def show_main_menu():
     print("1. Log in")
     print("2. Create account")
     print()
-    choice = int(input("Choose an option: "))
+    choice = input("Choose an option ('q' to quit): ")
 
     return choice
 
@@ -73,17 +76,10 @@ def show_game_menu():
         if choice.isdigit() and 0 < int(choice) <= len(available_games):
             break
         elif choice.lower() == 'q':
-            print(f"\nThanks for playing, {username}!")
-            time.sleep(2)
             return
         error = "Invalid choice. Please enter a valid number."
 
     play_game(int(choice))
-
-
-def make_choice(choices: dict, choice: str):
-    os.system('clear')
-    choices[choice]()
 
 
 def login(error: str = ""):
@@ -123,6 +119,7 @@ def login(error: str = ""):
 
 
 def create_account():
+    os.system('clear')
     print_banner("Create Account")
     username = input("Username: ")
     password = input("Password: ")
@@ -133,7 +130,6 @@ def create_account():
     cur.execute("""INSERT INTO tokens(account_id, amount) VALUES (?, ?)""",
                 (cur.lastrowid, START_TOKENS))
     con.commit()
-    show_main_menu()
 
 
 def encrypt_password(password):
