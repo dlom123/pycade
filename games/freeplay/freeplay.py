@@ -24,6 +24,7 @@ def refresh_screen():
         'game': 'Freeplay',
         'tokens': game_tokens
     }
+    items['username'] = game_username
     status = status_bar(**items)
     print(f"{status}\n")
 

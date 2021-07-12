@@ -35,6 +35,7 @@ def refresh_screen():
     }
     if current_bet:
         items['current_bet'] = current_bet
+    items['username'] = game_username
     status = status_bar(**items)
     print(f"{status}\n")
 

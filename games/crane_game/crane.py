@@ -3,7 +3,7 @@ from helpers import status_bar, update_tokens
 import random
 import time
 
-STATUS_WIDTH = 39
+STATUS_WIDTH = 60
 STATUS_HEIGHT = 3
 WINDOW_WIDTH = 39
 WINDOW_HEIGHT = 15
@@ -120,7 +120,10 @@ def shutdown():
 
 
 def display_status_bar():
-    status = status_bar(game_name="Crane Game", tokens=game_tokens)
+    status = status_bar(
+        game="Crane Game",
+        tokens=game_tokens,
+        username=game_username)
     status_window.addstr(0, 0, status)
     status_window.addstr(2, 0, "spacebar: lower crane, 'q': quit game")
     status_window.refresh()

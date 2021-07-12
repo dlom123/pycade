@@ -62,6 +62,9 @@ def refresh_screen():
         'game': 'Deal Or No Deal',
         'tokens': game_tokens
     }
+    if user_suitcase:
+        items['your_suitcase'] = list(user_suitcase.keys())[0]
+    items['username'] = game_username
     status = status_bar(**items)
     print(f"{status}\n")
 
@@ -173,6 +176,14 @@ def show_remaining_cases(round, cases_left_in_round):
     Displays the current game state to the user
     """
     refresh_screen()
+    if user_suitcase:
+        remaining_values = [v for v in remaining_cases.values()]
+        remaining_values += user_suitcase.values()
+        remaining_values.sort(reverse=True)
+        print("Remaining Suitcase Values:")
+        for i in range(len(remaining_values)//10):
+            print(", ".join([str(v) for v in remaining_values[i*10:i*10+10]]))
+    print()
     print(f"Round {round}")
     print(f"Cases Left To Pick: {cases_left_in_round}\n")
     row_sizes = (6, 7, 7, 6)

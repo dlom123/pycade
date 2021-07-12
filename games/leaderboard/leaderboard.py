@@ -1,18 +1,20 @@
 import os
 from helpers import status_bar, get_all_accounts
 
+game_username = None
 game_tokens = None
 rank = None
 
 
 def show(username, tokens):
-    global game_tokens, rank
+    global game_tokens, game_username, rank
     game_tokens = tokens
+    game_username = username
     accounts = get_all_accounts()
     board = []
     for i, account in enumerate(accounts, start=1):
         account_username, account_tokens = account
-        if account_username == username:
+        if account_username == game_username:
             rank = i
             if i > 10:
                 break
@@ -21,6 +23,7 @@ def show(username, tokens):
     refresh_screen()
     print("\n".join(board))
     input("\nPress Enter to return to the main menu.")
+    return game_tokens
 
 
 def refresh_screen():
@@ -30,6 +33,7 @@ def refresh_screen():
         'tokens': game_tokens,
         'rank': rank
     }
+    items['username'] = game_username
     status = status_bar(**items)
     print(f"{status}\n")
 

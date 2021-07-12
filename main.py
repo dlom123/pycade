@@ -65,11 +65,11 @@ def show_game_menu():
         os.system('clear')
         if error:
             print(f"{error}\n")
-        print(f"{status_bar(tokens=tokens)}\n")
+        print(f"{status_bar(tokens=tokens, username=username)}\n")
         print_banner("Games")
         for i, game in enumerate(available_games):
             game_title = game.replace("_", " ").title()
-            print(f"{i+1}. {game_title}")
+            print(f"{i+1:>2}. {game_title}")
         print()
         choice = input(
             f"Choose a game (1-{len(available_games)} or 'q' to quit): ")
