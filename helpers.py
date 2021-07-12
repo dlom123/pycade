@@ -1,4 +1,3 @@
-import re
 import sqlite3
 
 con = sqlite3.connect('kca.db')
@@ -31,3 +30,13 @@ def update_tokens(username, tokens):
                    SET amount = ?
                    WHERE account_id = ?""", (tokens, account_id))
     con.commit()
+
+
+def get_all_accounts():
+    cur.execute("""SELECT accounts.username, tokens.amount
+                   FROM accounts
+                   INNER JOIN tokens
+                   ON tokens.account_id = accounts.id
+                   ORDER BY tokens.amount DESC""")
+    r = cur.fetchall()
+    return r

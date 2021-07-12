@@ -173,7 +173,7 @@ def play_game(game_number):
     elif game == "wheel_of_python":
         tokens = wheel.play(username, tokens)
     elif game == "leaderboard":
-        leaderboard.show()
+        leaderboard.show(username, tokens)
 
     show_game_menu()
 
