@@ -21,6 +21,8 @@ def show(username, tokens):
         if i <= 10:
             board.append(f"{i:>2}. {account_username:<12} {account_tokens}")
     refresh_screen()
+    print("Top 10")
+    print("------")
     print("\n".join(board))
     input("\nPress Enter to return to the main menu.")
     return game_tokens
