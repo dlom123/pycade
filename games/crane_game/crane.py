@@ -78,7 +78,7 @@ def raise_crane():
 
 def generate_prizes():
     prizes.clear()
-    prizes.extend(random.sample(range(10, 100), 9))
+    prizes.extend(random.sample(range(10, 26), 9))
 
 
 def display_prizes():

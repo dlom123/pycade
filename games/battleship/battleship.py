@@ -200,7 +200,7 @@ def play(username, tokens, replay=False):
         # end of game
         refresh_screen()
         display_board(squares)
-        risk = 1 - (tries / 100)
+        risk = 1 - (tries / 50)
         perf = guesses / tries
         if len(sunken_ships) == len(ship_dict.keys()):
             winnings += REWARDS['win']

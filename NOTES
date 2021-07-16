@@ -3,11 +3,13 @@ Time Limit
     - Each user can only be logged in for 1 hour per day
 
 Token Restrictions
-    - Each game should cost some number of tokens to play
-    - Restrict the amount of tokens that any given game awards
+    - Each game should cost some number of tokens to play (except Freeplay)
 
 Gift Shop
     - Spend your tokens on:
         - emojis that display with your username (e.g., in the leaderboard)
         - in-game abilities (e.g., re-spin in slots) that you burn as you use them
         - username enhancements (e.g., "<username> The Great!")
+
+Speedcheck
+    - address any TODO items

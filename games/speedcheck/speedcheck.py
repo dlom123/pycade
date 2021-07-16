@@ -10,29 +10,33 @@ import os
 import random
 from helpers import status_bar, update_tokens
 
+GAME_COST = 2
+WINS_PER_LEVEL = 5
+
 exit_flag = None
 game_tokens = None
 game_username = None
-current_bet = None
 errors = []
+level = 0
+wins = 0
 
 
 def init():
     global still_playing, game_tokens, game_username
-    global errors, current_bet
+    global errors, level, wins
     still_playing = True
-    current_bet = 0
     errors = []
+    level = 0
+    wins = 0
 
 
 def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Speedcheck',
-        'tokens': game_tokens
+        'tokens': game_tokens,
+        'level': level
     }
-    if current_bet:
-        items['current_bet'] = current_bet
     items['username'] = game_username
     status = status_bar(**items)
     print(f"{status}\n")
@@ -55,42 +59,49 @@ def input_continue_playing():
         still_playing = False
 
 
+def get_accuracy(typed_word, secret_word):
+    correct = 0
+    for t, s in zip(typed_word, secret_word):
+        if t == s:
+            correct += 1
+    extra_letters = max(len(typed_word) - len(secret_word), 0)
+    accuracy = max(correct - extra_letters, 0) / len(secret_word)
+    return accuracy
+
+
+def display_substatus():
+    progress = wins / WINS_PER_LEVEL
+    substatus = (
+        f"Level {level} Progress: " +
+        f"[{'=' * wins}{' ' * (WINS_PER_LEVEL - wins)}] " +
+        f"{int(progress * 100)}%\n"
+    )
+    print(substatus)
+
+
 def play(username, tokens):
     init()
 
     global game_tokens, game_username, still_playing
-    global errors, current_bet
+    global errors, level, wins
     game_tokens = tokens
     game_username = username
-    words = []
+    words = {}
     with open('games/speedcheck/longwords.txt', "r") as f:
-        words = f.readlines()
+        for word in f:
+            words.setdefault(len(word), [])
+            words[len(word)].append(word.strip())
     while still_playing and game_tokens > 0:
-        invalid_bet = True
-        while invalid_bet:
-            refresh_screen()
-            if errors:
-                print(f"{errors[0]}")
-                errors.clear()
-            try:
-                tmp_bet = int(input("How many tokens will you bet? "))
-                if tmp_bet <= 0:
-                    errors.append("Invalid bet.")
-                    continue
-                elif tmp_bet > game_tokens:
-                    errors.append("Cannot bet more tokens than you have.")
-                    continue
-                invalid_bet = False
-            except Exception:
-                errors.append("Invalid bet.")
-                continue
-        current_bet = tmp_bet
-        game_tokens -= current_bet
+        game_tokens -= GAME_COST
         update_tokens(game_username, game_tokens)
+        # TODO: do not modulus (wrap around difficulty)
+        word_lengths = sorted(words.keys())[level]
+        level_words = words[word_lengths % len(words.keys())]
         time1 = datetime.now()
-        secret_word = random.choice(words)
+        secret_word = random.choice(level_words).strip().lower()
         time_to_beat = int(len(secret_word) / 2)
         refresh_screen()
+        display_substatus()
         inputed_word = input(
             f"You have {time_to_beat} seconds to type: {secret_word}\n")
         time2 = datetime.now()
@@ -106,26 +117,32 @@ def play(username, tokens):
                 f"\nWow, {game_username}!"
                 f" You are so fast! ({display_speed}s)"
             )
-            if inputed_word.lower().strip() == secret_word.lower().strip():
-                # tiering the score 3x or 1.5x
+            accuracy = get_accuracy(
+                inputed_word.lower().strip(),
+                secret_word
+            )
+            wins = wins + 1 if accuracy == 1 else 0
+            if wins == 5:
+                level += 1
+                wins = 0
+            display_accuracy = round(accuracy * 100, 2)
+            reward = int(GAME_COST * 2 * accuracy)
+            if int(accuracy) == 1:
                 message += (
-                    "\n...and accurate too!"
-                    f" (+{current_bet*2} tokens)\n"
+                    f"\n...and accurate too!"
+                    f" ({display_accuracy}% accuracy, +{reward} tokens)\n"
                 )
-                game_tokens += current_bet * 2
-                update_tokens(game_username, game_tokens)
             else:
                 message += (
                     "\n...but not very accurate!"
-                    f" (+{current_bet-1} tokens)\n"
+                    f" ({display_accuracy}% accuracy, +{reward} tokens)\n"
                 )
-                # house always wins
-                game_tokens += current_bet - 1
-                update_tokens(game_username, game_tokens)
+            game_tokens += reward
+            update_tokens(game_username, game_tokens)
         else:
             message += f"\nToo slow! ({display_speed}s)\n"
-        current_bet = 0
         refresh_screen()
+        display_substatus()
         print(message)
         input_continue_playing()
     return game_tokens
