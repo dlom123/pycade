@@ -3,6 +3,8 @@ import os
 import random
 from helpers import status_bar
 
+NAME = 'Freeplay'
+COST = 0
 INIT_REWARD = 5
 MAX_NUM = 100
 

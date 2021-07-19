@@ -1,8 +1,11 @@
 import os
 import random
-from helpers import status_bar
+from helpers import status_bar, update_tokens
 import math
 import time
+
+NAME = 'Deal Or No Deal'
+COST = 5
 
 game_tokens = None
 game_username = None
@@ -110,12 +113,9 @@ def play(username, tokens):
     init()
 
     global game_tokens, game_username, user_suitcase, still_playing
-    global errors, current_round
+    global errors, current_round, remaining_cases
     game_tokens = tokens
     game_username = username
-    # if tokens < 1000:
-    #     print("You need at least 1000 tokens to play!")
-    #     return game_tokens
     invalid_suitcase = True
     while invalid_suitcase:
         refresh_screen()
@@ -167,7 +167,27 @@ def play(username, tokens):
         if len(remaining_cases) <= 1:
             still_playing = False
 
-    print(game_tokens)
+    current_round += 1
+    refresh_screen()
+    show_remaining_cases(current_round, 0)
+    last_case = list(remaining_cases.keys())[0]
+    choice_swap = input(f"Would you like to swap your case for case #{last_case}? (y/n) ")
+    if choice_swap.lower() == 'y':
+        user_suitcase, remaining_cases = remaining_cases, user_suitcase
+    winnings = list(user_suitcase.values())[0]
+    game_tokens += winnings
+    other_tokens = list(remaining_cases.values())[0]
+    refresh_screen()
+    print(f"{'=' * 13:^20}{'=' * 14:^16}")
+    print(f"{'|  Your Case  |':^20}{'|  Other Case  |':^15}")
+    print(f"{'-' * 13:^20}{'-' * 14:^16}")
+    display_your_case = f'|{winnings:^13}|'
+    display_other_case = f'|{other_tokens:^14}|'
+    print(f"{display_your_case:^20}{display_other_case:^15}")
+    print(f"{'=' * 13:^20}{'=' * 14:^16}\n")
+    update_tokens(game_username, game_tokens)
+    print(f"You won {winnings} tokens!")
+    input("\nThanks for playing! Press Enter to return to the main menu.")
     return game_tokens
 
 
@@ -181,7 +201,7 @@ def show_remaining_cases(round, cases_left_in_round):
         remaining_values += user_suitcase.values()
         remaining_values.sort(reverse=True)
         print("Remaining Suitcase Values:")
-        for i in range(len(remaining_values)//10):
+        for i in range(max(len(remaining_values)//10, 1)):
             print(", ".join([str(v) for v in remaining_values[i*10:i*10+10]]))
     print()
     print(f"Round {round}")

@@ -1,0 +1,11 @@
+Gift Shop
+    - Spend your tokens on:
+        - emojis that display with your username (e.g., in the leaderboard)
+        - in-game abilities (e.g., re-spin in slots) that you burn as you use them
+        - username enhancements (e.g., "<username> The Great!")
+
+Deal Or No Deal
+    - Implement the end stage of the game
+
+Speedcheck
+    - do not modulus for level_words (wraps the difficulty around)

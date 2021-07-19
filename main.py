@@ -3,36 +3,27 @@
 # 3. Play that game
 #       - exit at any time by entering "exit"
 
-"""
-TODO
-- display cost of each game along right side of game menu
-"""
-
 import hashlib
+import importlib
 import os
-import time
 
-from games.battleship import battleship
-from games.blackjack import blackjack
-from games.crane_game import crane
-from games.deal_or_no_deal import dealornodeal
-from games.freeplay import freeplay
-from games.leaderboard import leaderboard
-from games.poker import poker
-from games.roulette import roulette
-from games.slots import slots
-from games.speedcheck import speedcheck
-from games.wheel_of_python import wheel
 from helpers import con, cur, status_bar
 
 START_TOKENS = 100
-DISABLED = ['poker']
+DISABLED = ['poker', 'wheel-of-python']
 available_games = sorted(
     [game for game in os.listdir('games')
      if game not in DISABLED
         and game != 'leaderboard']
 )
 available_games.append('leaderboard')
+games = {}
+for game_name in available_games:
+    mod = importlib.import_module(f"games.{game_name}.{game_name}")
+    games[mod] = {
+        'name': mod.NAME,
+        'cost': mod.COST
+    }
 tokens = 0
 username = None
 errors = []
@@ -67,13 +58,16 @@ def show_game_menu():
             print(f"{error}\n")
         print(f"{status_bar(tokens=tokens, username=username)}\n")
         print_banner("Games")
-        for i, game in enumerate(available_games):
-            game_title = game.replace("_", " ").title()
-            print(f"{i+1:>2}. {game_title}")
+        for i, game in enumerate(games.values()):
+            name, cost = game['name'], game['cost']
+            name_string = f"{i+1:>2}. {name}"
+            cost_string = "FREE to play" if not cost else f"({cost} tokens to play)"
+            game_string = f"{name_string:<20} {cost_string}"
+            print(game_string)
         print()
         choice = input(
-            f"Choose a game (1-{len(available_games)} or 'q' to quit): ")
-        if choice.isdigit() and 0 < int(choice) <= len(available_games):
+            f"Choose a game (1-{len(games)} or 'q' to quit): ")
+        if choice.isdigit() and 0 < int(choice) <= len(games):
             break
         elif choice.lower() == 'q':
             return
@@ -146,30 +140,11 @@ def print_banner(message):
 def play_game(game_number):
     global tokens, username
     os.system('clear')
-    game = available_games[game_number-1]
-
-    if game == "battleship":
-        tokens = battleship.play(username, tokens)
-    elif game == "blackjack":
-        tokens = blackjack.play(username, tokens)
-    elif game == "crane_game":
-        tokens = crane.play(username, tokens)
-    elif game == "deal_or_no_deal":
-        tokens = dealornodeal.play(username, tokens)
-    elif game == "freeplay":
-        tokens = freeplay.play(username, tokens)
-    elif game == "poker":
-        tokens = poker.play(username, tokens)
-    elif game == "roulette":
-        tokens = roulette.play(username, tokens)
-    elif game == "slots":
-        tokens = slots.play(username, tokens)
-    elif game == "speedcheck":
-        tokens = speedcheck.play(username, tokens)
-    elif game == "wheel_of_python":
-        tokens = wheel.play(username, tokens)
-    elif game == "leaderboard":
-        leaderboard.show(username, tokens)
+    game_choice = available_games[game_number-1]
+    for mod, game in games.items():
+        game_choice = game_choice.replace("-", " ").replace("_", " ")
+        if game_choice.lower() == game['name'].lower():
+            tokens = mod.play(username, tokens)
 
     show_game_menu()
 

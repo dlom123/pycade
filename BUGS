@@ -12,14 +12,15 @@ X "Enter bet", enter a negative number, lose tokens when you win, win tokes when
 
 DEAL OR NO DEAL:
 X enter a non number for suitcase selection, crash program 
-+ Cannot open suitcases after choosing your suitcase (missing code?)
+X Cannot open suitcases after choosing your suitcase (missing code?)
 
 FREE PLAY:
 X non number submission, crash the program 
 
 SLOTS:
 X after first invalid bet amount, the next correct bet will crash the program 
-X+ 3 of a kind does not actually reward you
+X 3 of a kind does not actually reward you
+- Rewards seem to be broken (2 matching slots give 0 tokens...sometimes?)
 
 SPEED CHECK:
 X if you input non number bet, crashes the program

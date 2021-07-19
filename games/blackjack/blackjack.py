@@ -2,6 +2,8 @@ import os
 import random
 from helpers import status_bar
 
+NAME = 'Blackjack'
+COST = 0
 # deck dictionary= "card": [number_of_cards, point_value]
 DECK = {'A': [4, 1, 11], "2": [4, 2], "3": [4, 3], "4": [4, 4], "5": [4, 5],
         "6": [4, 6], "7": [4, 7], "8": [4, 8], "9": [4, 9], "10": [4, 10],
@@ -95,7 +97,7 @@ def play(username, tokens):
 
     global game_tokens, game_username, still_playing
     global current_bet, errors
-    game_tokens = tokens
+    game_tokens = tokens - COST
     game_username = username
 
     """ runtime loop managing the game state """

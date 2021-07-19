@@ -2,6 +2,14 @@ import os
 import random
 from helpers import status_bar, update_tokens
 
+NAME = 'Battleship'
+COST = 5
+REWARDS = {
+    'hit': 1,
+    'sink': 5,
+    'win': 25
+}
+
 still_playing = None
 game_tokens = None
 game_username = None
@@ -14,25 +22,26 @@ row = [True, False]
 checks = ' '.join([' '.join([f"{row}{number}" for number in column])
                    for row in rows]).split()
 ship_dict = {"C": 5, "Bb": 4, "Gb": 3, "S": 3}
-ship_name_dict = {"C": ["Carrier", 2],
-                  "Bb": ["Battleship", 3],
-                  "Gb": ["Gun Boat", 5],
-                  "S": ["Ship", 5]}
-ships = [2, 3, 3, 4, 5]
+ship_name_dict = {"C": ["Carrier", 5],
+                  "Bb": ["Battleship", 4],
+                  "Gb": ["Gun Boat", 3],
+                  "S": ["Ship", 3]}
 guesses = None
 errors = []
 sunken_ships = None
 guess_list = None
+winnings = None
 
 
 def init():
     global still_playing, guesses, errors
-    global sunken_ships, guess_list
+    global sunken_ships, guess_list, winnings
     still_playing = True
     guesses = 0
     errors = []
     sunken_ships = []
     guess_list = []
+    winnings = 0
 
 
 def refresh_screen():
@@ -101,8 +110,8 @@ def play(username, tokens, replay=False):
 
     global game_tokens, game_username, still_playing, checks
     global ship_name_dict, game_board, column, rows, ship_dict
-    global guesses, errors
-    game_tokens = tokens
+    global guesses, errors, winnings
+    game_tokens = tokens - COST
     game_username = username
     position = enemy_placement()
     hit = False
@@ -117,7 +126,7 @@ def play(username, tokens, replay=False):
         invalid_input = True
         while invalid_input:
             refresh_screen()
-            tries = input("How many tokens will you spend (5 guesses per token)? ")
+            tries = input("How many tokens will you spend (1 guess per token)? ")
             try:
                 tries = int(tries)
                 if tries > 0:
@@ -126,7 +135,7 @@ def play(username, tokens, replay=False):
                     continue
             except Exception:
                 continue
-        guesses = 5 * int(tries)
+        guesses = int(tries)
         game_tokens -= int(tries)
         update_tokens(game_username, game_tokens)
 
@@ -143,17 +152,26 @@ def play(username, tokens, replay=False):
                 elif hit:
                     message += f"\n{'-' * 10:^30}\n"
                     message += f"{'| HIT!!! |':^30}\n"
+                    plus = f"+{REWARDS['hit']}"
+                    reward = f"|{plus:^8}|"
+                    message += f"{reward:^30}\n"
                     message += f"{'-' * 10:^30}\n"
+                    winnings += REWARDS['hit']
                 for ship_type in position.keys():
                     if position[ship_type] == [] and ship_type not in sunken_ships:  # noqa
-                        ship_name = ship_name_dict[ship_type][0]
-                        msg_sunk = f'You sunk my {ship_name}!!!'
+                        ship_name, ship_length = ship_name_dict[ship_type]
+                        reward_sink = REWARDS['sink'] - (REWARDS['sink'] - ship_length)  # noqa
+                        msg_sunk = (
+                            f"You sunk my {ship_name}!!!"
+                            f" (+{reward_sink})"
+                        )
                         message += f"\n{msg_sunk:^30}\n"
                         sunken_ships.append(ship_type)
+                        winnings += reward_sink
                 print(message)
                 print("Your guesses:")
                 for i, previous_guess in enumerate(guess_list):
-                    if not i % 10:
+                    if i > 0 and not i % 10:
                         print()
                     print(previous_guess, end=" ")
                 print()
@@ -184,18 +202,28 @@ def play(username, tokens, replay=False):
         # end of game
         refresh_screen()
         display_board(squares)
+        risk = 1 - (tries / 50)
+        perf = guesses / tries
         if len(sunken_ships) == len(ship_dict.keys()):
-            winnings = sum([ship_name_dict[ship][1] for ship in sunken_ships])
+            winnings += REWARDS['win']
+            winnings = round((risk + perf) * tries)
             msg_win = f"You win! (+{winnings} tokens)"
             print(f"\n{msg_win:^30}\n")
             game_tokens += winnings
             update_tokens(game_username, game_tokens)
         elif guesses == 0:
-            print(f"\n{'GAME OVER':^30}")
-            msg_nice_try = f"Nice Try, Admiral {username.title()}."
-            print(f"{msg_nice_try:^30}\n")
+            winnings *= risk
+            winnings = round(winnings)
+            game_tokens += winnings
+            update_tokens(game_username, game_tokens)
+            refresh_screen()
+            display_board(squares)
+            print(f"\n{'GAME OVER':^30}\n")
+            print(f"Nice Try, Admiral {username.title()}.")
+            print("You may have lost the battle...and the war...")
+            print(f"...BUT, you earned {winnings} tokens along the way!\n")
         if game_tokens:
-            again = input("Would you like to play again? [y/n] ")
+            again = input(f"Would you like to play again? (costs {COST} tokens) [y/n] ")
             if again.lower() == 'y':
                 return play(username, game_tokens, replay=True)
         else:
