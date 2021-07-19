@@ -10,7 +10,8 @@ import os
 import random
 from helpers import status_bar, update_tokens
 
-GAME_COST = 2
+NAME = 'Speedcheck'
+COST = 2
 WINS_PER_LEVEL = 5
 
 exit_flag = None
@@ -92,9 +93,8 @@ def play(username, tokens):
             words.setdefault(len(word), [])
             words[len(word)].append(word.strip())
     while still_playing and game_tokens > 0:
-        game_tokens -= GAME_COST
+        game_tokens -= COST
         update_tokens(game_username, game_tokens)
-        # TODO: do not modulus (wrap around difficulty)
         word_lengths = sorted(words.keys())[level]
         level_words = words[word_lengths % len(words.keys())]
         time1 = datetime.now()
@@ -126,7 +126,7 @@ def play(username, tokens):
                 level += 1
                 wins = 0
             display_accuracy = round(accuracy * 100, 2)
-            reward = int(GAME_COST * 2 * accuracy)
+            reward = int(COST * 2 * accuracy)
             if int(accuracy) == 1:
                 message += (
                     f"\n...and accurate too!"

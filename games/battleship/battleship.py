@@ -2,6 +2,8 @@ import os
 import random
 from helpers import status_bar, update_tokens
 
+NAME = 'Battleship'
+COST = 5
 REWARDS = {
     'hit': 1,
     'sink': 5,
@@ -109,7 +111,7 @@ def play(username, tokens, replay=False):
     global game_tokens, game_username, still_playing, checks
     global ship_name_dict, game_board, column, rows, ship_dict
     global guesses, errors, winnings
-    game_tokens = tokens
+    game_tokens = tokens - COST
     game_username = username
     position = enemy_placement()
     hit = False
@@ -221,7 +223,7 @@ def play(username, tokens, replay=False):
             print("You may have lost the battle...and the war...")
             print(f"...BUT, you earned {winnings} tokens along the way!\n")
         if game_tokens:
-            again = input("Would you like to play again? [y/n] ")
+            again = input(f"Would you like to play again? (costs {COST} tokens) [y/n] ")
             if again.lower() == 'y':
                 return play(username, game_tokens, replay=True)
         else:

@@ -1,6 +1,10 @@
 import random
 import time
 from string import ascii_lowercase as al
+
+NAME = 'Wheel Of Python'
+COST = 5
+
 still_playing = None
 game_tokens = 30
 game_username = "user"

@@ -20,6 +20,7 @@ X non number submission, crash the program
 SLOTS:
 X after first invalid bet amount, the next correct bet will crash the program 
 X 3 of a kind does not actually reward you
+- Rewards seem to be broken (2 matching slots give 0 tokens...sometimes?)
 
 SPEED CHECK:
 X if you input non number bet, crashes the program

@@ -4,6 +4,9 @@ import os
 from helpers import status_bar, update_tokens
 
 
+NAME = 'Slots'
+COST = 0
+
 # The list of all possibilities that each slot can land on
 possibilities = ["🍉", "7", "🍇", "💎", "🍒", "🍊", "🔔", "🍋", "🍀", "🥇", "💖", "🧲", "BAR"]
 

@@ -3,6 +3,8 @@ from helpers import status_bar, update_tokens
 import random
 import time
 
+NAME = 'Crane Game'
+COST = 2
 STATUS_WIDTH = 60
 STATUS_HEIGHT = 3
 WINDOW_WIDTH = 39
@@ -146,7 +148,7 @@ def play(username, tokens):
 
         global game_tokens, game_username
         global game_state, crane_state, prize
-        game_tokens = tokens
+        game_tokens = tokens - COST
         game_username = username
         while still_playing:
             if game_state == GAME_ACTIVE:
@@ -185,6 +187,7 @@ def play(username, tokens):
                     else:
                         # restart the game
                         init()
+                        game_tokens -= COST
             time.sleep(REFRESH_RATE)
         shutdown()
     except Exception as e:

@@ -12,6 +12,9 @@ from helpers import status_bar
 # num-of-players
 # copy ?
 
+NAME = 'Poker'
+COST = 0
+
 #player and table tokens
 game_tokens = None
 game_username = None
