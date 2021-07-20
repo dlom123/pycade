@@ -1,6 +1,6 @@
 import os
 import random
-from helpers import status_bar, update_tokens
+from helpers import status_bar, update_tokens, add_commas
 
 NAME = 'Battleship'
 COST = 5
@@ -48,7 +48,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Battleship',
-        'tokens': game_tokens
+        'tokens': add_commas(game_tokens)
     }
     if guesses:
         items['guesses'] = guesses

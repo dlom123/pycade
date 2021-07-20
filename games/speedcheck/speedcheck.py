@@ -8,7 +8,7 @@ Speed Check:
 from datetime import datetime
 import os
 import random
-from helpers import status_bar, update_tokens
+from helpers import status_bar, update_tokens, add_commas
 
 NAME = 'Speedcheck'
 COST = 2
@@ -35,7 +35,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Speedcheck',
-        'tokens': game_tokens,
+        'tokens': add_commas(game_tokens),
         'level': level
     }
     items['username'] = game_username

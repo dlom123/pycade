@@ -1,7 +1,7 @@
 import curses
-from helpers import status_bar, update_tokens
 import random
 import time
+from helpers import status_bar, update_tokens, add_commas
 
 NAME = 'Crane Game'
 COST = 2
@@ -124,7 +124,7 @@ def shutdown():
 def display_status_bar():
     status = status_bar(
         game="Crane Game",
-        tokens=game_tokens,
+        tokens=add_commas(game_tokens),
         username=game_username)
     status_window.addstr(0, 0, status)
     status_window.addstr(2, 0, "spacebar: lower crane, 'q': quit game")
