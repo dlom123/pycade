@@ -1,7 +1,7 @@
 import helpers
 import os
 import random
-from helpers import status_bar
+from helpers import status_bar, add_commas
 
 NAME = 'Freeplay'
 COST = 0
@@ -24,7 +24,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Freeplay',
-        'tokens': game_tokens
+        'tokens': add_commas(game_tokens)
     }
     items['username'] = game_username
     status = status_bar(**items)

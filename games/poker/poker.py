@@ -1,7 +1,7 @@
 import os
 import random
 import sys
-from helpers import status_bar
+from helpers import status_bar, add_commas
 # imported random and used it. check
 # mulligan? types of poker holdem,
 # 5 card etc
@@ -126,7 +126,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Poker',
-        'tokens': game_tokens
+        'tokens': add_commas(game_tokens)
     }
     items['username'] = game_username
     status = status_bar(**items)

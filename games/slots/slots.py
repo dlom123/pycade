@@ -1,7 +1,7 @@
 import random
 import time
 import os
-from helpers import status_bar, update_tokens
+from helpers import status_bar, update_tokens, add_commas
 
 
 NAME = 'Slots'
@@ -34,7 +34,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Slots',
-        'tokens': game_tokens
+        'tokens': add_commas(game_tokens)
     }
     if current_bet:
         items['current_bet'] = current_bet

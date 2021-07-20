@@ -1,5 +1,5 @@
 import os
-from helpers import status_bar, get_all_accounts
+from helpers import status_bar, get_all_accounts, add_commas
 
 NAME = 'Leaderboard'
 COST = 0
@@ -16,13 +16,16 @@ def play(username, tokens):
     accounts = get_all_accounts()
     board = []
     for i, account in enumerate(accounts, start=1):
-        account_username, account_tokens = account
-        if account_username == game_username:
+        if account['username'] == game_username:
             rank = i
             if i > 10:
                 break
         if i <= 10:
-            board.append(f"{i:>2}. {account_username:<12} {account_tokens}")
+            board.append((
+                f"{i:>2}. {account['username']:<12} "
+                f"{add_commas(account['tokens']):<15}"
+                f"{' '.join(account['items'])}"
+            ))
     refresh_screen()
     print("Top 10")
     print("------")
@@ -35,7 +38,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Leaderboard',
-        'tokens': game_tokens,
+        'tokens': add_commas(game_tokens),
         'rank': rank
     }
     items['username'] = game_username

@@ -3,7 +3,7 @@
 import random
 import helpers
 import os
-from helpers import status_bar
+from helpers import status_bar, add_commas
 
 NAME = 'Roulette'
 COST = 0
@@ -49,7 +49,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Roulette',
-        'tokens': game_tokens
+        'tokens': add_commas(game_tokens)
     }
     if current_bet:
         items['current_bet'] = current_bet

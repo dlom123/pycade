@@ -1,6 +1,6 @@
 import os
 import random
-from helpers import status_bar, update_tokens
+from helpers import status_bar, update_tokens, add_commas
 import math
 import time
 
@@ -63,7 +63,7 @@ def refresh_screen():
     os.system('clear')
     items = {
         'game': 'Deal Or No Deal',
-        'tokens': game_tokens
+        'tokens': add_commas(game_tokens)
     }
     if user_suitcase:
         items['your_suitcase'] = list(user_suitcase.keys())[0]

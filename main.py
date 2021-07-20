@@ -7,16 +7,20 @@ import hashlib
 import importlib
 import os
 
-from helpers import con, cur, status_bar
+from helpers import con, cur, status_bar, add_commas
 
 START_TOKENS = 100
 DISABLED = ['poker', 'wheel-of-python']
 available_games = sorted(
     [game for game in os.listdir('games')
      if game not in DISABLED
-        and game != 'leaderboard']
+        and (
+            game != 'leaderboard'
+            and game != 'gift-shop'
+        )]
 )
 available_games.append('leaderboard')
+available_games.append('gift-shop')
 games = {}
 for game_name in available_games:
     mod = importlib.import_module(f"games.{game_name}.{game_name}")
@@ -56,7 +60,7 @@ def show_game_menu():
         os.system('clear')
         if error:
             print(f"{error}\n")
-        print(f"{status_bar(tokens=tokens, username=username)}\n")
+        print(f"{status_bar(tokens=add_commas(tokens), username=username)}\n")
         print_banner("Games")
         for i, game in enumerate(games.values()):
             name, cost = game['name'], game['cost']
