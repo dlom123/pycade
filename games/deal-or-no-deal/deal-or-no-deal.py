@@ -163,15 +163,17 @@ def play(username, tokens):
             print(f"Suitcase {choice} contained {popped}")
             time.sleep(2)
 
-        make_bankers_offer()
-        if len(remaining_cases) <= 1:
+        if len(remaining_cases) > 1:
+            make_bankers_offer()
+        else:
             still_playing = False
 
     current_round += 1
     refresh_screen()
     show_remaining_cases(current_round, 0)
     last_case = list(remaining_cases.keys())[0]
-    choice_swap = input(f"Would you like to swap your case for case #{last_case}? (y/n) ")
+    choice_swap = input(
+        f"Would you like to swap your case for case #{last_case}? (y/n) ")
     if choice_swap.lower() == 'y':
         user_suitcase, remaining_cases = remaining_cases, user_suitcase
     winnings = list(user_suitcase.values())[0]
@@ -201,7 +203,7 @@ def show_remaining_cases(round, cases_left_in_round):
         remaining_values += user_suitcase.values()
         remaining_values.sort(reverse=True)
         print("Remaining Suitcase Values:")
-        for i in range(max(len(remaining_values)//10, 1)):
+        for i in range(len(remaining_values)//10+1):
             print(", ".join([str(v) for v in remaining_values[i*10:i*10+10]]))
     print()
     print(f"Round {round}")
