@@ -1,6 +1,7 @@
 import html
 import os
-from helpers import status_bar, get_shop_items, buy_shop_item, add_commas
+from helpers import add_commas, status_bar
+from helpers import get_shop_items, buy_shop_item
 
 NAME = "Gift Shop"
 COST = 0
@@ -60,7 +61,8 @@ def play(username, tokens):
             except Exception:
                 errors.append("Invalid choice")
         if is_shopping:
-            buy_shop_item(game_username, items[int(choice)]['id'])
+            item_to_buy = items[int(choice)]
+            game_tokens = buy_shop_item(game_username, item_to_buy['id'])
             errors.append((
                 "Congratulations on your brand new "
                 f"{format_item_name(items[int(choice)]['name'])}!"
