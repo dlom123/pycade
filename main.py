@@ -9,7 +9,7 @@ import os
 
 from helpers import con, cur, status_bar, add_commas
 
-START_TOKENS = 100
+START_TOKENS = 20
 DISABLED = ['poker', 'wheel-of-python']
 available_games = sorted(
     [game for game in os.listdir('games')
