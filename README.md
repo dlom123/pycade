@@ -1,6 +1,8 @@
 # Pycade
 
-Walk around...play a game!
+*A keyboard arcade adventure.*
+
+Pycade is a collaborative effort that I lead with my students during my time as a Python instructor. Browse the game gallery, play to earn tokens, and spend them on emojis in the Gift Shop to bedazzle your Leaderboard status!
 
 ![Pycade screenshot](https://github.com/dlom123/pycade/blob/main/img/screenshot.png?raw=true)
 
