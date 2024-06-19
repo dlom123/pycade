@@ -1,6 +1,7 @@
 import sqlite3
 
-con = sqlite3.connect('kca.db')
+db_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "kca.db")
+con = sqlite3.connect(db_file)
 cur = con.cursor()
 
 
@@ -109,7 +110,7 @@ def get_shop_items():
 def buy_shop_item(username, item_id):
     """
     Attaches a shop item to the given username's account within the database.
-    
+
     Returns the resulting account token amount.
     """
     cur.execute("""SELECT id, cost, qty FROM shop_items
