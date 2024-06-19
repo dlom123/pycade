@@ -11,13 +11,14 @@ from helpers import con, cur, status_bar, add_commas
 
 START_TOKENS = 20
 DISABLED = ['poker', 'wheel-of-python']
+games_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "games")
 available_games = sorted(
-    [game for game in os.listdir('games')
+    [game for game in os.listdir(games_dir)
      if game not in DISABLED
         and (
             game != 'leaderboard'
             and game != 'gift-shop'
-        )]
+    )]
 )
 available_games.append('leaderboard')
 available_games.append('gift-shop')
