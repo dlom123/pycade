@@ -1,3 +1,4 @@
+import os
 import sqlite3
 
 db_file = os.path.join(os.path.dirname(os.path.realpath(__file__)), "kca.db")
