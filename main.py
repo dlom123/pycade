@@ -6,6 +6,7 @@
 import hashlib
 import importlib
 import os
+import sys
 
 from helpers import con, cur, status_bar, add_commas
 
@@ -35,13 +36,16 @@ errors = []
 
 
 def main():
-    while True:
-        os.system('clear')
-        choice = show_main_menu()
-        if choice.lower() == 'q':
-            break
-        main_menu_choices[int(choice)]()
-    con.close()
+    try:
+        while True:
+            os.system('clear')
+            choice = show_main_menu()
+            if choice.lower() == 'q':
+                break
+            main_menu_choices[int(choice)]()
+        con.close()
+    except KeyboardInterrupt:
+        sys.exit(1)
 
 
 def show_main_menu():
